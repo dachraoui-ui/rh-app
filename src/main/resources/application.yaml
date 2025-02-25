@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: hr-app
+
+server:
+  port: 8083
