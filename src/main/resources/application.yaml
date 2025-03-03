@@ -7,7 +7,7 @@ spring:
         registration:
           keycloak:
             client-id: rh-backend
-            client-secret: cgKvfELDgyYywFvo6NAMYEqkkrO0eqID
+            client-secret: JORmTiKbsNZbBECHux4gwEU14JdSjxi9
             scope: openid,profile,email
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
