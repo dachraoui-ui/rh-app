@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: hr-app
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: rh-backend
+            client-secret: JORmTiKbsNZbBECHux4gwEU14JdSjxi9
+            scope: openid, profile, email
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://localhost:8083/login/oauth2/code/keycloak"
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8180/realms/RH-Realm
+            user-name-attribute: preferred_username
+
+server:
+  port: 8083
