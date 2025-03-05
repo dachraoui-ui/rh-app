@@ -4,7 +4,7 @@ services:
     container_name: keycloak
     ports:
       - "9090:8080"
-  
+  #use this port 
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
