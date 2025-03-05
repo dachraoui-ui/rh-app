@@ -17,16 +17,24 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/drh/**").hasRole("DRH")
-                        .anyRequest().authenticated()
+        http
+                .authorizeHttpRequests(authorizeRequests ->
+                        authorizeRequests
+                                .requestMatchers("/", "/error").permitAll()
+                                .anyRequest().authenticated()
                 )
-                .oauth2Login(); // Pour Keycloak OAuth2
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/error")
+                )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                );
 
         return http.build();
     }
 }
+
 
 
