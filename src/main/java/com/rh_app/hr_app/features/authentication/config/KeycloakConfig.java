@@ -1,4 +1,4 @@
-package com.rh_app.hr_app.auth.config;
+package com.rh_app.hr_app.features.authentication.config;
 
 
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
