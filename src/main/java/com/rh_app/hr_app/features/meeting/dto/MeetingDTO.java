@@ -1,0 +1,4 @@
+package com.rh_app.hr_app.features.meeting.dto;
+
+public class MeetingDTO {
+}
