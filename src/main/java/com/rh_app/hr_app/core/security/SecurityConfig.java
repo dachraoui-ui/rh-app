@@ -1,6 +1,7 @@
-package com.example.book_social_network.security;
+package com.rh_app.hr_app.core.security;
 
-import com.rh_app.hr_app.core.security.KeycloakJwtAuthenticationConverter;
+
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

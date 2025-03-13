@@ -7,6 +7,23 @@ spring:
         jwt:
           issuer-uri: "http://localhost:9090/auth/realms/RH-Realm"
 
+# configuration of postgresql database
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hr_db
+    username: admin
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+# configuration of hibernate to update database schema
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
 
 
 server:
