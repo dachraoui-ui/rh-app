@@ -9,6 +9,10 @@ services:
       POSTGRES_PASSWORD: admin
     volumes:
       - keycloak_postgres_data:/var/lib/postgresql/data
+  # docker exec -t postgres_container pg_dump -U admin -d hr_db > hr_db_dump.sql
+  # use this command to dump the database and share it
+  # ? docker cp hr_db_dump.sql postgres_container:/hr_db_dump.sql
+  # ? docker exec -it postgres_container psql -U admin -d hr_db -f /hr_db_dump.sql
     ports:
       - "5432:5432"
     networks:
