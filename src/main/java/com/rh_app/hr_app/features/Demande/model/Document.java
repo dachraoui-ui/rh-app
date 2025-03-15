@@ -1,6 +1,7 @@
-package com.rh_app.hr_app.features.contract.model;
+package com.rh_app.hr_app.features.Demande.model;
 
 
+import com.rh_app.hr_app.core.enums.StatutDocument;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
 
 @Getter
 @Setter
@@ -16,27 +16,21 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "contrat")
-
-public class Contract {
+@Table(name = "document")
+public class Document {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idContrat;
+    private Long idDemandeDoc;
 
     @Column(nullable = false)
-    private String contratType;
+    private StatutDocument statut;
 
     @Column(nullable = false)
-    private Date DateDebut;
+    private String typeDoc;
 
-    @Column(nullable = false)
-    private Date DateFin;
 
-    @Column(nullable = false)
-    private  Double salaire;
-
-    // !to do : employee id
+    // ! relation avec l'employe
 
 
 }

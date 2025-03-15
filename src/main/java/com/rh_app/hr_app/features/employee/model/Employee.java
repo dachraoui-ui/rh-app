@@ -18,16 +18,17 @@ public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idEmployee;
 
     @Column(nullable = false)
-    private String name;
+    private String nom;
 
     @Column(unique = true, nullable = false)
     private String email;
 
     @Column(nullable = false)
-    private String password;
+    private String motDePasse;
+
 
     @Column(nullable = false)
     private boolean active;

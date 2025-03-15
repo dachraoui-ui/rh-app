@@ -1,5 +1,4 @@
-package com.rh_app.hr_app.features.contract.model;
-
+package com.rh_app.hr_app.features.recruitment.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,35 +7,34 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
-
 @Getter
 @Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "contrat")
-
-public class Contract {
+@Table(name = "poste")
+public class Poste {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idContrat;
+    private Long idPoste;
 
     @Column(nullable = false)
-    private String contratType;
+    private String titre;
 
     @Column(nullable = false)
-    private Date DateDebut;
+    private String description;
 
     @Column(nullable = false)
-    private Date DateFin;
+    private String typeContrat;
 
     @Column(nullable = false)
-    private  Double salaire;
+    private Double salaire;
 
-    // !to do : employee id
+    @Column(nullable = false)
+    private String Competences;
+
 
 
 }

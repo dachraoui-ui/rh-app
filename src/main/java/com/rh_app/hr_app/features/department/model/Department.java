@@ -19,10 +19,10 @@ import lombok.experimental.SuperBuilder;
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idDepartment;
+    private Long idDepartement;
 
     @Column(nullable = false)
-    private String name;
+    private String nom;
 
     private String description;
 

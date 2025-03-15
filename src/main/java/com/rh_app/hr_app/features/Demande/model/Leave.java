@@ -1,4 +1,4 @@
-package com.rh_app.hr_app.features.leave.model;
+package com.rh_app.hr_app.features.Demande.model;
 
 
 import com.rh_app.hr_app.core.enums.StatutLeave;
@@ -23,16 +23,16 @@ import java.util.Date;
 public class Leave {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idLeave;
+    private Long idConge;
 
     @Column(nullable = false)
     private String type;
 
     @Column(nullable = false)
-    private Date startDate;
+    private Date DateDebut;
 
     @Column(nullable = false)
-    private Date endDate;
+    private Date DateFin;
 
     private String description;
 
