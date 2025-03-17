@@ -27,7 +27,7 @@ public class Employee {
     private String email;
 
     @Column(nullable = false)
-    private String motDePasse;
+    private String prenom;
 
 
     @Column(nullable = false)
