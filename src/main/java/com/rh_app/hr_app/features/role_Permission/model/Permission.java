@@ -1,27 +1,26 @@
 package com.rh_app.hr_app.features.role_Permission.model;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import java.util.Set;
 
+@Entity
+@Table(name = "permission")
 @Getter
 @Setter
 @SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "permission")
+@AllArgsConstructor
 public class Permission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPermission;
 
-    @Column(nullable = false)
-    private String permissionName;
+    @Column(unique = true, nullable = false)
+    private String name;
 
+    @OneToMany(mappedBy = "permission", cascade = CascadeType.ALL)
+    private Set<RolePermission> rolePermissions;
 }

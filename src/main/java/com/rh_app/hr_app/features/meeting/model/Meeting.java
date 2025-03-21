@@ -1,35 +1,30 @@
 package com.rh_app.hr_app.features.meeting.model;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
 
+@Entity
+@Table(name = "reunion")
 @Getter
 @Setter
 @SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "reunion")
+@AllArgsConstructor
 public class Meeting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idReunion;
 
-    @Column(nullable = false)
+    private LocalDate dateDebut; // Newly added attribute
     private String sujet;
-
-    @Column(nullable = false)
-    private Date dateDebut;
-
-    @Column(nullable = false)
     private String pvReunion;
+
+    @OneToMany(mappedBy = "reunion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EmployeeReunion> employeeReunions; // Relationship with EmployeeReunion
 
 }
