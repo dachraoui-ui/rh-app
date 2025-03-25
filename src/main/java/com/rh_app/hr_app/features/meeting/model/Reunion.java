@@ -14,7 +14,7 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Meeting {
+public class Reunion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

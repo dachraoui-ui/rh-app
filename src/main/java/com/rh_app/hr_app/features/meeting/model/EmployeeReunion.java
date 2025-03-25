@@ -15,7 +15,7 @@ public class EmployeeReunion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idEmpReunion;
 
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false)
@@ -23,7 +23,7 @@ public class EmployeeReunion {
 
     @ManyToOne
     @JoinColumn(name = "reunion_id", nullable = false)
-    private Meeting reunion;
+    private Reunion reunion;
 
     private String role; // Example: "Organizer", "Attendee", "Speaker"
 

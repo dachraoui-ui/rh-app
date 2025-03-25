@@ -23,10 +23,6 @@ public class Department {
     private String nom;
     private String description;
 
-//    @OneToOne
-//    @JoinColumn(name = "id_manager")
-//    private Employee manager;
-
     @OneToMany(mappedBy = "department")
     private Set<Employee> employees;
 }
