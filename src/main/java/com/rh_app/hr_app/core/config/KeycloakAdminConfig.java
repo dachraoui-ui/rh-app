@@ -10,14 +10,13 @@ import org.springframework.context.annotation.Configuration;
 public class KeycloakAdminConfig {
 
     @Bean
-    public Keycloak keycloakAdminClient() {
+    public Keycloak keycloakAdminClient(KeycloakAdminProperties props) {
         return KeycloakBuilder.builder()
-                .serverUrl("http://localhost:9090")
-                .realm("RH-Realm") // your actual realm
-                .clientId("admin-cli") // or your custom service account client
-                .grantType(OAuth2Constants.PASSWORD)
-                .username("ahmed")
-                .password("ahmed")
+                .serverUrl(props.getServerUrl())
+                .realm(props.getRealm())
+                .clientId(props.getClientId())
+                .clientSecret(props.getClientSecret())
+                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
                 .build();
     }
 }

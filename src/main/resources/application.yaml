@@ -1,13 +1,13 @@
 spring:
   application:
     name: hr-app
-# configuration of postgresql database
+
   datasource:
     url: jdbc:postgresql://localhost:5432/hr_db
     username: admin
     password: admin
     driver-class-name: org.postgresql.Driver
-# configuration of hibernate to update database schema
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -17,8 +17,13 @@ spring:
       hibernate:
         format_sql: true
 
-
-
 server:
   port: 8083
 
+# ✅ Keycloak Admin Client (for programmatic user/role management)
+keycloak:
+  admin:
+    server-url: http://localhost:9090
+    realm: RH-Realm
+    client-id: keycloak-admin
+    client-secret: "6Sj9xauDxSpoBCfHXHjp12SsuMqzyOHt"
