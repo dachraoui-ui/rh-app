@@ -52,4 +52,5 @@ public class KeycloakConfig {
     protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
         return new NullAuthenticatedSessionStrategy();
     }
+
 }
