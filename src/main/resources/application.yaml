@@ -1,19 +1,12 @@
 spring:
   application:
     name: hr-app
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: "http://localhost:9090/auth/realms/RH-Realm"
-
 # configuration of postgresql database
   datasource:
     url: jdbc:postgresql://localhost:5432/hr_db
     username: admin
     password: admin
     driver-class-name: org.postgresql.Driver
-
 # configuration of hibernate to update database schema
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -23,21 +16,13 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "http://localhost:9090/auth/realms/RH-Realm"
 
 
 server:
   port: 8083
 
-#      client:
-#        registration:
-#          keycloak:
-#            client-id: rh-backend
-#            client-secret: JORmTiKbsNZbBECHux4gwEU14JdSjxi9
-#            scope: openid, profile, email
-#            authorization-grant-type: authorization_code
-#            redirect-uri: "http://localhost:8083/login/oauth2/code/keycloak"
-#        provider:
-#          keycloak:
-#            issuer-uri: http://localhost:8180/realms/RH-Realm
-#            user-name-attribute: preferred_username
