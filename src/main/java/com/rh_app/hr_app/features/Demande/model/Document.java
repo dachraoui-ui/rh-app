@@ -30,6 +30,7 @@ public class Document {
     private String typeDoc;
 
 
+    // relation et 
     // ! relation avec l'employe
 
 
