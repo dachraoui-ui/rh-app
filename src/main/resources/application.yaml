@@ -17,10 +17,16 @@ spring:
       hibernate:
         format_sql: true
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/RH-Realm  # 👈 This is the public URL for JWT validation
+
 server:
   port: 8083
 
-# ✅ Keycloak Admin Client (for programmatic user/role management)
+# ✅ Keycloak Admin Client (for managing users/roles via Admin API)
 keycloak:
   admin:
     server-url: http://localhost:9090
