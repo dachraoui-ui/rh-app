@@ -1,18 +1,23 @@
 package com.rh_app.hr_app.features.employee.model;
 
+import com.rh_app.hr_app.features.department.model.Department;
+import com.rh_app.hr_app.features.meeting.model.EmployeeReunion;
+import com.rh_app.hr_app.features.role_Permission.model.Role;
+import com.rh_app.hr_app.features.task.model.DateAffectation;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
+@Entity
 @Getter
 @Setter
 @SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@AllArgsConstructor
 @Table(name = "employee")
 public class Employee {
 
@@ -20,21 +25,33 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idEmployee;
 
-    @Column(nullable = false)
     private String nom;
+    private String prenom;
 
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
-    private String prenom;
+    private String NumTel;
+    private String addresse;
+    private LocalDate dateOfBirth;
+    private LocalDate hireDate;
+    private BigDecimal salary;
+
+    private boolean actif;
 
 
-    @Column(nullable = false)
-    private boolean active;
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
 
-    // !to do : add role
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    private List<EmployeeReunion> employeeReunions;
 
+    // New Relationship: Employee is assigned to tasks with start & end dates
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    private Set<DateAffectation> assignedTasks;
 }
-

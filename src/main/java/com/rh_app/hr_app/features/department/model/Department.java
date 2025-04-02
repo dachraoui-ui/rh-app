@@ -1,30 +1,28 @@
 package com.rh_app.hr_app.features.department.model;
 
 
+import com.rh_app.hr_app.features.employee.model.Employee;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import java.util.Set;
 
+@Entity
+@Table(name = "department")
 @Getter
 @Setter
 @SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "departement")
-
+@AllArgsConstructor
 public class Department {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idDepartement;
+    private Long id;
 
-    @Column(nullable = false)
     private String nom;
-
     private String description;
 
-    // !to do : manager id
+    @OneToMany(mappedBy = "department")
+    private Set<Employee> employees;
 }
