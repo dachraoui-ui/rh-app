@@ -31,7 +31,7 @@ public class KeycloakRoleService {
         role.setName(roleName);
 
         try {
-            keycloak.realm(realm).roles().create(role); // returns void in latest versions
+            keycloak.realm(realm).roles().create(role);
             return "✅ Role '" + roleName + "' created successfully!";
         } catch (WebApplicationException e) {
             if (e.getResponse().getStatus() == 409) {

@@ -35,8 +35,6 @@ public class KeycloakConfig {
         return keycloakAuthenticationProvider;
     }
 
-
-
     /**
      * Disables session management as Keycloak handles sessions.
      */
