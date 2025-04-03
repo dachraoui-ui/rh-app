@@ -1,7 +1,5 @@
 package com.rh_app.hr_app.core.security;
 
-
-
 import jakarta.annotation.Nonnull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -9,41 +7,29 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
-
-import static java.util.stream.Collectors.toSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class KeycloakJwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
+    private static final Set<String> ALLOWED_ROLES = Set.of("DRH", "GRH", "EMPLOYEE");
+
     @Override
-    public AbstractAuthenticationToken convert(@Nonnull Jwt source) {
-        return new JwtAuthenticationToken(
-                source,
-                Stream.concat(
-                        new JwtGrantedAuthoritiesConverter().convert(source).stream(),
-                        extractResourceRoles(source).stream()
-                ).collect(toSet())
-
-        );
+    public AbstractAuthenticationToken convert(@Nonnull Jwt jwt) {
+        Collection<GrantedAuthority> authorities = extractRealmRoles(jwt);
+        return new JwtAuthenticationToken(jwt, authorities);
     }
-    private Collection<? extends GrantedAuthority> extractResourceRoles(Jwt jwt) {
-        var ressourceAccess = new HashMap<>(jwt.getClaim("resource_access"));
 
-        var enternal = (Map<String, List<String>>) ressourceAccess.get("account");
+    private Collection<GrantedAuthority> extractRealmRoles(Jwt jwt) {
+        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+        if (realmAccess == null || realmAccess.get("roles") == null) return Collections.emptySet();
 
-        var roles = enternal.get("roles");
+        List<String> roles = (List<String>) realmAccess.get("roles");
 
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.replace("-","_")))
-                .collect(toSet());
+                .filter(role -> ALLOWED_ROLES.contains(role.toUpperCase()))
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                .collect(Collectors.toSet());
     }
-    // to extract the authorities from the JWT
-    // token and return them as a collection of GrantedAuthority objects from keycloak
 }
