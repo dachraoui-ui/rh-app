@@ -33,3 +33,7 @@ keycloak:
     realm: RH-Realm
     client-id: keycloak-admin
     client-secret: "6Sj9xauDxSpoBCfHXHjp12SsuMqzyOHt"
+
+logging:
+  level:
+    root: INFO
