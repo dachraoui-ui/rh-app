@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class KeycloakAdminConfig {
 
-    @Bean
+    @Bean(name = "keycloakAdmin")
     public Keycloak keycloakAdminClient(KeycloakAdminProperties props) {
         return KeycloakBuilder.builder()
                 .serverUrl(props.getServerUrl())
