@@ -1,7 +1,7 @@
 package com.rh_app.hr_app.features.department.model;
 
 
-import com.rh_app.hr_app.features.employee.model.Employee;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -23,6 +23,9 @@ public class Department {
     private String nom;
     private String description;
 
+    private boolean actif = true; // Optional active status
+
     @OneToMany(mappedBy = "department")
-    private Set<Employee> employees;
+    private Set<UserDepartment> userDepartments; // Updated relation
 }
+

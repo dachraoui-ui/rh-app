@@ -23,6 +23,18 @@ spring:
         jwt:
           issuer-uri: http://localhost:9090/realms/RH-Realm  # 👈 This is the public URL for JWT validation
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: your_email@gmail.com
+    password: your_app_password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 server:
   port: 8083
 
@@ -34,6 +46,5 @@ keycloak:
     client-id: keycloak-admin
     client-secret: "6Sj9xauDxSpoBCfHXHjp12SsuMqzyOHt"
 
-logging:
-  level:
-    root: INFO
+
+
