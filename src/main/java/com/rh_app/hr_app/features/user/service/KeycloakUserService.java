@@ -1,5 +1,6 @@
 package com.rh_app.hr_app.features.user.service;
 
+import com.rh_app.hr_app.core.email.MailService;
 import com.rh_app.hr_app.features.user.dto.UserDto;
 import com.rh_app.hr_app.features.user.mapper.UserMapper;
 import jakarta.ws.rs.core.Response;
@@ -18,6 +19,7 @@ import java.util.Collections;
 public class KeycloakUserService {
 
     private final Keycloak keycloak;
+    private final MailService mailService;
 
     @Value("${keycloak.admin.realm}")
     private String realm;
@@ -35,7 +37,7 @@ public class KeycloakUserService {
         // 3. Set password
         CredentialRepresentation password = new CredentialRepresentation();
         password.setType(CredentialRepresentation.PASSWORD);
-        password.setTemporary(false);
+        password.setTemporary(true);
         password.setValue(dto.getPassword());
 
         keycloak.realm(realm).users().get(userId).resetPassword(password);
@@ -43,6 +45,8 @@ public class KeycloakUserService {
         // 4. Assign role
         RoleRepresentation role = keycloak.realm(realm).roles().get(dto.getRole()).toRepresentation();
         keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
+
+        mailService.sendAccountActivationEmail(dto.getEmail(), dto.getPassword());
 
         return " User created successfully with ID: " + userId;
     }
