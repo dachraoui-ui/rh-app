@@ -23,7 +23,6 @@ public class Department {
     private String nom;
     private String description;
 
-    private boolean actif = true; // Optional active status
 
     @OneToMany(mappedBy = "department")
     private Set<UserDepartment> userDepartments; // Updated relation

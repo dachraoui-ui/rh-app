@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,17 +27,16 @@ public class KeycloakUserService {
     @Value("${keycloak.admin.realm}")
     private String realm;
 
+    // 1. Create User
     public String createUser(UserDto dto) {
         UserRepresentation user = UserMapper.toUserRepresentation(dto);
 
-        // 1. Create user
         Response response = keycloak.realm(realm).users().create(user);
-        if (response.getStatus() != 201) return " Error creating user: " + response.getStatus();
+        if (response.getStatus() != 201)
+            return " Error creating user: " + response.getStatus();
 
-        // 2. Extract user ID
         String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
 
-        // 3. Set password
         CredentialRepresentation password = new CredentialRepresentation();
         password.setType(CredentialRepresentation.PASSWORD);
         password.setTemporary(true);
@@ -42,12 +44,61 @@ public class KeycloakUserService {
 
         keycloak.realm(realm).users().get(userId).resetPassword(password);
 
-        // 4. Assign role
         RoleRepresentation role = keycloak.realm(realm).roles().get(dto.getRole()).toRepresentation();
         keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
 
         mailService.sendAccountActivationEmail(dto.getEmail(), dto.getPassword());
 
         return " User created successfully with ID: " + userId;
+    }
+
+    // 2. Update User Profile
+    public String updateUserProfile(String userId, UserDto dto) {
+        UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setEmail(dto.getEmail());
+        user.setUsername(dto.getUsername());
+
+        user.singleAttribute("cin", dto.getCin());
+        user.singleAttribute("tel", dto.getTel());
+        user.singleAttribute("photoUrl", dto.getPhotoUrl());
+        user.singleAttribute("salary", String.valueOf(dto.getSalary()));
+        user.singleAttribute("departmentId", dto.getDepartmentId());
+        user.singleAttribute("isActive", String.valueOf(dto.getIsActive()));
+
+        keycloak.realm(realm).users().get(userId).update(user);
+        return " User updated successfully";
+    }
+
+    // 3. Delete User
+    public String deleteUser(String userId) {
+        keycloak.realm(realm).users().get(userId).remove();
+        return " User deleted successfully";
+    }
+
+    // 4. Get All Users
+    public List<UserDto> getAllUsers() {
+        return keycloak.realm(realm).users().list()
+                .stream()
+                .map(UserMapper::fromUserRepresentation)
+                .collect(Collectors.toList());
+    }
+
+    // 5. Get User by Username
+    public Optional<UserDto> getUserByUsername(String username) {
+        List<UserRepresentation> users = keycloak.realm(realm).users().search(username);
+        return users.stream().findFirst().map(UserMapper::fromUserRepresentation);
+    }
+
+    // 6. Get Users by Department
+    public List<UserDto> getUsersByDepartment(String departmentId) {
+        return keycloak.realm(realm).users().list()
+                .stream()
+                .filter(u -> departmentId.equals(u.getAttributes() != null
+                        ? u.getAttributes().getOrDefault("departmentId", List.of("")).get(0)
+                        : null))
+                .map(UserMapper::fromUserRepresentation)
+                .collect(Collectors.toList());
     }
 }
