@@ -39,11 +39,11 @@ public class MailService {
                     <p><strong>Password:</strong> %s</p>
                     <p>Click the link below to log in and change your password:</p>
                     <p>
-                      <a href="%s/realms/%s/account">Update Password</a>
+                      <a href="http://localhost:9090/realms/RH-Realm/login-actions">Update Password</a>
                     </p>
                     <br>
                     <p>Regards,<br/>RH Team</p>
-                    """.formatted(tempPassword, keycloakBaseUrl, realm);
+                    """.formatted(tempPassword);
 
             helper.setText(content, true);
             mailSender.send(message);
