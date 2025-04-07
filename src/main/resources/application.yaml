@@ -22,9 +22,26 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9090/realms/RH-Realm  # 👈 This is the public URL for JWT validation
+          jwk-set-uri: http://localhost:9090/realms/RH-Realm/protocol/openid-connect/certs
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dachraouia193@gmail.com
+    password: iiun fhvz ertn dopm
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   port: 8083
+
+logging:
+  level:
+    org.springframework.security: DEBUG
 
 # ✅ Keycloak Admin Client (for managing users/roles via Admin API)
 keycloak:
@@ -33,3 +50,8 @@ keycloak:
     realm: RH-Realm
     client-id: keycloak-admin
     client-secret: "6Sj9xauDxSpoBCfHXHjp12SsuMqzyOHt"
+
+
+
+
+
