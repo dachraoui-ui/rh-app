@@ -17,6 +17,8 @@ public class MailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
+    // These may be unused if you're no longer linking directly to Keycloak,
+    // but we'll keep them if you need them for other email links:
     @Value("${keycloak.admin.server-url}")
     private String keycloakBaseUrl;
 
@@ -32,18 +34,24 @@ public class MailService {
             helper.setTo(toEmail);
             helper.setSubject("🔐 Activate Your Account");
 
-            // 👇 The redirect link to update credentials (directs to Keycloak login with forced password update)
+            // 1) Construct a link to your Angular app's "activate" page
+            // e.g. http://localhost:4200/activate?tempPw=someTempPassword
+            // The Angular route can then trigger Keycloak login for the user.
+            String activationUrl = "http://localhost:4200/activate?tempPw=" + tempPassword;
+
+            // 2) Build the HTML message
+            // Keycloak sees the user's password is temporary -> forces password update
             String content = """
-                    <p>Hello,</p>
-                    <p>Your account has been created successfully. Please use the following temporary password:</p>
-                    <p><strong>Password:</strong> %s</p>
-                    <p>Click the link below to log in and change your password:</p>
-                    <p>
-                      <a href="http://localhost:9090/realms/RH-Realm/login-actions">Update Password</a>
-                    </p>
-                    <br>
-                    <p>Regards,<br/>RH Team</p>
-                    """.formatted(tempPassword);
+                <p>Hello,</p>
+                <p>Your account has been created successfully. Please use the following temporary password:</p>
+                <p><strong>Password:</strong> %s</p>
+                <p>Click the link below to activate your account and set a new password:</p>
+                <p>
+                  <a href="%s">Activate Your Account</a>
+                </p>
+                <br>
+                <p>Regards,<br/>RH Team</p>
+                """.formatted(tempPassword, activationUrl);
 
             helper.setText(content, true);
             mailSender.send(message);
