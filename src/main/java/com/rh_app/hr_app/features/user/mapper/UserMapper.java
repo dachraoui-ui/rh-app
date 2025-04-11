@@ -37,6 +37,10 @@ public class UserMapper {
         if (dto.getSalary() != null) {
             attributes.put("salary", List.of(dto.getSalary().toString()));
         }
+        // Adding the role field
+        if (dto.getRole() != null) {
+            attributes.put("role", List.of(dto.getRole()));
+        }
 
         user.setAttributes(attributes);
         user.setRequiredActions(List.of("UPDATE_PASSWORD"));
@@ -59,6 +63,8 @@ public class UserMapper {
                 .photoUrl(getAttribute(attributes, "photoUrl"))
                 .departmentId(getAttribute(attributes, "departmentId"))
                 .salary(parseDouble(getAttribute(attributes, "salary")))
+                // Mapping the role field from the Keycloak attribute
+                .role(getAttribute(attributes, "role"))
                 .isActive(user.isEnabled())
                 .build();
     }

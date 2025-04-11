@@ -31,8 +31,9 @@ public class KeycloakUserService {
     public String createUser(UserDto dto) {
         UserRepresentation user = UserMapper.toUserRepresentation(dto);
 
-        // If isActive is false, we disable the user in Keycloak.
-        user.setEnabled(Boolean.TRUE.equals(dto.getIsActive()));
+        // If isActive is false, disable the user in Keycloak.
+        boolean enabled = (dto.getIsActive() == null) || dto.getIsActive();
+        user.setEnabled(enabled);
 
         Response response = keycloak.realm(realm).users().create(user);
         if (response.getStatus() != 201) {
@@ -41,22 +42,24 @@ public class KeycloakUserService {
 
         String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
 
-        // Set password, roles, etc. as before
+        // Set password
         CredentialRepresentation password = new CredentialRepresentation();
         password.setType(CredentialRepresentation.PASSWORD);
         password.setTemporary(true);
         password.setValue(dto.getPassword());
-
         keycloak.realm(realm).users().get(userId).resetPassword(password);
 
-        RoleRepresentation role = keycloak.realm(realm).roles().get(dto.getRole()).toRepresentation();
-        keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
+        // Assign a role to the user.
+        // Here we use dto.getRole() because the DTO now contains a single role (String).
+        if (dto.getRole() != null && !dto.getRole().isEmpty()) {
+            RoleRepresentation role = keycloak.realm(realm).roles().get(dto.getRole()).toRepresentation();
+            keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
+        }
 
         mailService.sendAccountActivationEmail(dto.getEmail(), dto.getPassword());
 
         return "User created successfully with ID: " + userId;
     }
-
 
     // 2. Update User Profile
     public String updateUserProfile(String userId, UserDto dto) {
@@ -75,13 +78,12 @@ public class KeycloakUserService {
         user.singleAttribute("departmentId", dto.getDepartmentId());
         user.singleAttribute("isActive", String.valueOf(dto.getIsActive()));
 
-        // Enable/disable user according to isActive
+        // Enable/disable user according to isActive flag
         user.setEnabled(Boolean.TRUE.equals(dto.getIsActive()));
 
         keycloak.realm(realm).users().get(userId).update(user);
         return "User updated successfully";
     }
-
 
     // 3. Delete User
     public String deleteUser(String userId) {
@@ -89,18 +91,40 @@ public class KeycloakUserService {
         return "User deleted successfully";
     }
 
+    private List<String> getUserRoles(String userId) {
+        List<RoleRepresentation> roles = keycloak.realm(realm).users().get(userId)
+                .roles().realmLevel().listAll();
+        return roles.stream()
+                .map(RoleRepresentation::getName)
+                .filter(roleName -> !roleName.startsWith("default-roles-")) // exclude default roles
+                .collect(Collectors.toList());
+    }
+
+
     // 4. Get All Users
     public List<UserDto> getAllUsers() {
         return keycloak.realm(realm).users().list()
                 .stream()
-                .map(UserMapper::fromUserRepresentation)
+                .map(user -> {
+                    // Convert using your existing mapper
+                    UserDto userDto = UserMapper.fromUserRepresentation(user);
+                    // Fetch and set the role from Keycloak (using the first role if available)
+                    List<String> roles = getUserRoles(user.getId());
+                    userDto.setRole(roles != null && !roles.isEmpty() ? roles.get(0) : null);
+                    return userDto;
+                })
                 .collect(Collectors.toList());
     }
 
     // 5. Get User by Username
     public Optional<UserDto> getUserByUsername(String username) {
         List<UserRepresentation> users = keycloak.realm(realm).users().search(username);
-        return users.stream().findFirst().map(UserMapper::fromUserRepresentation);
+        return users.stream().findFirst().map(user -> {
+            UserDto userDto = UserMapper.fromUserRepresentation(user);
+            List<String> roles = getUserRoles(user.getId());
+            userDto.setRole(roles != null && !roles.isEmpty() ? roles.get(0) : null);
+            return userDto;
+        });
     }
 
     // 6. Get Users by Department
@@ -110,17 +134,17 @@ public class KeycloakUserService {
                 .filter(u -> departmentId.equals(u.getAttributes() != null
                         ? u.getAttributes().getOrDefault("departmentId", List.of("")).get(0)
                         : null))
-                .map(UserMapper::fromUserRepresentation)
+                .map(user -> {
+                    UserDto userDto = UserMapper.fromUserRepresentation(user);
+                    List<String> roles = getUserRoles(user.getId());
+                    userDto.setRole(roles != null && !roles.isEmpty() ? roles.get(0) : null);
+                    return userDto;
+                })
                 .collect(Collectors.toList());
     }
 
     // 7. Check if User Exists by Email
     public boolean userExistsByEmail(String email) {
-        // Keycloak Admin Client's "search" can take up to 6 parameters:
-        //   (String username, String firstName, String lastName, String email, Integer firstResult, Integer maxResults)
-        // Here we pass null for fields we don't want to filter and use email to match.
-        // It's partial/fuzzy, but if it returns anything, that means at least one user
-        // has an email containing the given text.
         List<UserRepresentation> users = keycloak
                 .realm(realm)
                 .users()
