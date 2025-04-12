@@ -29,9 +29,10 @@ public class KeycloakUserService {
 
     // 1. Create User
     public String createUser(UserDto dto) {
+        // Use the mapper to include all custom attributes
         UserRepresentation user = UserMapper.toUserRepresentation(dto);
 
-        // If isActive is false, disable the user in Keycloak.
+        // Enable user if isActive is true (or null)
         boolean enabled = (dto.getIsActive() == null) || dto.getIsActive();
         user.setEnabled(enabled);
 
@@ -42,15 +43,14 @@ public class KeycloakUserService {
 
         String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
 
-        // Set password
+        // Set temporary password
         CredentialRepresentation password = new CredentialRepresentation();
         password.setType(CredentialRepresentation.PASSWORD);
         password.setTemporary(true);
         password.setValue(dto.getPassword());
         keycloak.realm(realm).users().get(userId).resetPassword(password);
 
-        // Assign a role to the user.
-        // Here we use dto.getRole() because the DTO now contains a single role (String).
+        // Assign a role if provided
         if (dto.getRole() != null && !dto.getRole().isEmpty()) {
             RoleRepresentation role = keycloak.realm(realm).roles().get(dto.getRole()).toRepresentation();
             keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
@@ -65,12 +65,13 @@ public class KeycloakUserService {
     public String updateUserProfile(String userId, UserDto dto) {
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
 
+        // Update basic information
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
         user.setUsername(dto.getUsername());
 
-        // Map custom attributes
+        // Update basic custom attributes
         user.singleAttribute("cin", dto.getCin());
         user.singleAttribute("tel", dto.getTel());
         user.singleAttribute("photoUrl", dto.getPhotoUrl());
@@ -78,7 +79,57 @@ public class KeycloakUserService {
         user.singleAttribute("departmentId", dto.getDepartmentId());
         user.singleAttribute("isActive", String.valueOf(dto.getIsActive()));
 
-        // Enable/disable user according to isActive flag
+        // Update new custom attributes if they are not null.
+        if (dto.getBirthDate() != null) {
+            user.singleAttribute("birthDate", dto.getBirthDate());
+        }
+        if (dto.getGender() != null) {
+            user.singleAttribute("gender", dto.getGender());
+        }
+        if (dto.getMaritalStatus() != null) {
+            user.singleAttribute("maritalStatus", dto.getMaritalStatus());
+        }
+        if (dto.getStreet() != null) {
+            user.singleAttribute("street", dto.getStreet());
+        }
+        if (dto.getCity() != null) {
+            user.singleAttribute("city", dto.getCity());
+        }
+        if (dto.getZip() != null) {
+            user.singleAttribute("zip", dto.getZip());
+        }
+        if (dto.getCountry() != null) {
+            user.singleAttribute("country", dto.getCountry());
+        }
+        if (dto.getPaySchedule() != null) {
+            user.singleAttribute("paySchedule", dto.getPaySchedule());
+        }
+        if (dto.getPayType() != null) {
+            user.singleAttribute("payType", dto.getPayType());
+        }
+        if (dto.getEthnicity() != null) {
+            user.singleAttribute("ethnicity", dto.getEthnicity());
+        }
+        if (dto.getWorkPhone() != null) {
+            user.singleAttribute("workPhone", dto.getWorkPhone());
+        }
+        if (dto.getMobilePhone() != null) {
+            user.singleAttribute("mobilePhone", dto.getMobilePhone());
+        }
+        if (dto.getWorkEmail() != null) {
+            user.singleAttribute("workEmail", dto.getWorkEmail());
+        }
+        if (dto.getHireDate() != null) {
+            user.singleAttribute("hireDate", dto.getHireDate());
+        }
+        if (dto.getJobTitle() != null) {
+            user.singleAttribute("jobTitle", dto.getJobTitle());
+        }
+        if (dto.getLocation() != null) {
+            user.singleAttribute("location", dto.getLocation());
+        }
+
+        // Set enable/disable status
         user.setEnabled(Boolean.TRUE.equals(dto.getIsActive()));
 
         keycloak.realm(realm).users().get(userId).update(user);
@@ -91,24 +142,22 @@ public class KeycloakUserService {
         return "User deleted successfully";
     }
 
+    // Helper method to get a user's roles (excluding default roles)
     private List<String> getUserRoles(String userId) {
         List<RoleRepresentation> roles = keycloak.realm(realm).users().get(userId)
                 .roles().realmLevel().listAll();
         return roles.stream()
                 .map(RoleRepresentation::getName)
-                .filter(roleName -> !roleName.startsWith("default-roles-")) // exclude default roles
+                .filter(roleName -> !roleName.startsWith("default-roles-"))
                 .collect(Collectors.toList());
     }
-
 
     // 4. Get All Users
     public List<UserDto> getAllUsers() {
         return keycloak.realm(realm).users().list()
                 .stream()
                 .map(user -> {
-                    // Convert using your existing mapper
                     UserDto userDto = UserMapper.fromUserRepresentation(user);
-                    // Fetch and set the role from Keycloak (using the first role if available)
                     List<String> roles = getUserRoles(user.getId());
                     userDto.setRole(roles != null && !roles.isEmpty() ? roles.get(0) : null);
                     return userDto;
@@ -145,8 +194,7 @@ public class KeycloakUserService {
 
     // 7. Check if User Exists by Email
     public boolean userExistsByEmail(String email) {
-        List<UserRepresentation> users = keycloak
-                .realm(realm)
+        List<UserRepresentation> users = keycloak.realm(realm)
                 .users()
                 .search(null, null, null, email, 0, 10);
 

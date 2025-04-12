@@ -19,7 +19,23 @@ public class UserDto {
     private Double salary;
     private Boolean isActive;
     private String password;
-
-    // Single role field
     private String role;
+
+
+    private String birthDate;
+    private String gender;
+    private String maritalStatus;
+    private String street;
+    private String city;
+    private String zip;
+    private String country;
+    private String paySchedule;
+    private String payType;
+    private String ethnicity;
+    private String workPhone;
+    private String mobilePhone;
+    private String workEmail;
+    private String hireDate;
+    private String jobTitle;
+    private String location;
 }

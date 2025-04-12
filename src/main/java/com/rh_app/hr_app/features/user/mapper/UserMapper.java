@@ -13,6 +13,7 @@ public class UserMapper {
     public static UserRepresentation toUserRepresentation(UserDto dto) {
         UserRepresentation user = new UserRepresentation();
 
+        // Basic user properties
         user.setUsername(dto.getEmail()); // using email as username
         user.setEmail(dto.getEmail());
         user.setFirstName(dto.getFirstName());
@@ -22,6 +23,7 @@ public class UserMapper {
         // Custom Keycloak attributes
         Map<String, List<String>> attributes = new HashMap<>();
 
+        // Existing attributes
         if (dto.getCin() != null) {
             attributes.put("cin", List.of(dto.getCin()));
         }
@@ -37,9 +39,58 @@ public class UserMapper {
         if (dto.getSalary() != null) {
             attributes.put("salary", List.of(dto.getSalary().toString()));
         }
-        // Adding the role field
         if (dto.getRole() != null) {
             attributes.put("role", List.of(dto.getRole()));
+        }
+
+        // New attributes
+        if (dto.getBirthDate() != null) {
+            attributes.put("birthDate", List.of(dto.getBirthDate()));
+        }
+        if (dto.getGender() != null) {
+            attributes.put("gender", List.of(dto.getGender()));
+        }
+        if (dto.getMaritalStatus() != null) {
+            attributes.put("maritalStatus", List.of(dto.getMaritalStatus()));
+        }
+        if (dto.getStreet() != null) {
+            attributes.put("street", List.of(dto.getStreet()));
+        }
+        if (dto.getCity() != null) {
+            attributes.put("city", List.of(dto.getCity()));
+        }
+        if (dto.getZip() != null) {
+            attributes.put("zip", List.of(dto.getZip()));
+        }
+        if (dto.getCountry() != null) {
+            attributes.put("country", List.of(dto.getCountry()));
+        }
+        if (dto.getPaySchedule() != null) {
+            attributes.put("paySchedule", List.of(dto.getPaySchedule()));
+        }
+        if (dto.getPayType() != null) {
+            attributes.put("payType", List.of(dto.getPayType()));
+        }
+        if (dto.getEthnicity() != null) {
+            attributes.put("ethnicity", List.of(dto.getEthnicity()));
+        }
+        if (dto.getWorkPhone() != null) {
+            attributes.put("workPhone", List.of(dto.getWorkPhone()));
+        }
+        if (dto.getMobilePhone() != null) {
+            attributes.put("mobilePhone", List.of(dto.getMobilePhone()));
+        }
+        if (dto.getWorkEmail() != null) {
+            attributes.put("workEmail", List.of(dto.getWorkEmail()));
+        }
+        if (dto.getHireDate() != null) {
+            attributes.put("hireDate", List.of(dto.getHireDate()));
+        }
+        if (dto.getJobTitle() != null) {
+            attributes.put("jobTitle", List.of(dto.getJobTitle()));
+        }
+        if (dto.getLocation() != null) {
+            attributes.put("location", List.of(dto.getLocation()));
         }
 
         user.setAttributes(attributes);
@@ -66,6 +117,23 @@ public class UserMapper {
                 // Mapping the role field from the Keycloak attribute
                 .role(getAttribute(attributes, "role"))
                 .isActive(user.isEnabled())
+                // New attributes
+                .birthDate(getAttribute(attributes, "birthDate"))
+                .gender(getAttribute(attributes, "gender"))
+                .maritalStatus(getAttribute(attributes, "maritalStatus"))
+                .street(getAttribute(attributes, "street"))
+                .city(getAttribute(attributes, "city"))
+                .zip(getAttribute(attributes, "zip"))
+                .country(getAttribute(attributes, "country"))
+                .paySchedule(getAttribute(attributes, "paySchedule"))
+                .payType(getAttribute(attributes, "payType"))
+                .ethnicity(getAttribute(attributes, "ethnicity"))
+                .workPhone(getAttribute(attributes, "workPhone"))
+                .mobilePhone(getAttribute(attributes, "mobilePhone"))
+                .workEmail(getAttribute(attributes, "workEmail"))
+                .hireDate(getAttribute(attributes, "hireDate"))
+                .jobTitle(getAttribute(attributes, "jobTitle"))
+                .location(getAttribute(attributes, "location"))
                 .build();
     }
 
