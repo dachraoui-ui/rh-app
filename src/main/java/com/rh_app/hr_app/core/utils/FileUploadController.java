@@ -53,8 +53,7 @@ public class FileUploadController {
 
             // For simplicity, we return the file's URL as the relative path.
             // In production, you might map these files via a static file server or CDN.
-            String fileUrl = "/uploads/" + uniqueFileName;
-
+            String fileUrl = "http://localhost:8083/uploads/" + uniqueFileName;
             return ResponseEntity.ok(fileUrl);
 
         } catch (IOException ex) {

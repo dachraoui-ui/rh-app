@@ -35,7 +35,7 @@ public class UserDto {
     private String workPhone;
     private String mobilePhone;
     private String workEmail;
-    private String hireDate;
+    private String Hire_Date;
     private String jobTitle;
     private String location;
 }

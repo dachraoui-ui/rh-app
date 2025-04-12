@@ -83,8 +83,8 @@ public class UserMapper {
         if (dto.getWorkEmail() != null) {
             attributes.put("workEmail", List.of(dto.getWorkEmail()));
         }
-        if (dto.getHireDate() != null) {
-            attributes.put("hireDate", List.of(dto.getHireDate()));
+        if (dto.getHire_Date() != null) {
+            attributes.put("Hire_Date", List.of(dto.getHire_Date()));
         }
         if (dto.getJobTitle() != null) {
             attributes.put("jobTitle", List.of(dto.getJobTitle()));
@@ -131,7 +131,7 @@ public class UserMapper {
                 .workPhone(getAttribute(attributes, "workPhone"))
                 .mobilePhone(getAttribute(attributes, "mobilePhone"))
                 .workEmail(getAttribute(attributes, "workEmail"))
-                .hireDate(getAttribute(attributes, "hireDate"))
+                .Hire_Date(getAttribute(attributes, "Hire_Date"))
                 .jobTitle(getAttribute(attributes, "jobTitle"))
                 .location(getAttribute(attributes, "location"))
                 .build();

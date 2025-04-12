@@ -119,8 +119,8 @@ public class KeycloakUserService {
         if (dto.getWorkEmail() != null) {
             user.singleAttribute("workEmail", dto.getWorkEmail());
         }
-        if (dto.getHireDate() != null) {
-            user.singleAttribute("hireDate", dto.getHireDate());
+        if (dto.getHire_Date() != null) {
+            user.singleAttribute("Hire_Date", dto.getHire_Date());
         }
         if (dto.getJobTitle() != null) {
             user.singleAttribute("jobTitle", dto.getJobTitle());
