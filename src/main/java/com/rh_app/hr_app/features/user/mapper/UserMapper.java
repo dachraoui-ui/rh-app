@@ -44,8 +44,8 @@ public class UserMapper {
         }
 
         // New attributes
-        if (dto.getBirthDate() != null) {
-            attributes.put("birthDate", List.of(dto.getBirthDate()));
+        if (dto.getBirth_Date() != null) {
+            attributes.put("Birth_Date", List.of(dto.getBirth_Date()));
         }
         if (dto.getGender() != null) {
             attributes.put("gender", List.of(dto.getGender()));
@@ -118,7 +118,7 @@ public class UserMapper {
                 .role(getAttribute(attributes, "role"))
                 .isActive(user.isEnabled())
                 // New attributes
-                .birthDate(getAttribute(attributes, "birthDate"))
+                .Birth_Date(getAttribute(attributes, "Birth_Date"))
                 .gender(getAttribute(attributes, "gender"))
                 .maritalStatus(getAttribute(attributes, "maritalStatus"))
                 .street(getAttribute(attributes, "street"))

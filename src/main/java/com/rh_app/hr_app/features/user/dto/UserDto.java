@@ -22,7 +22,7 @@ public class UserDto {
     private String role;
 
 
-    private String birthDate;
+    private String Birth_Date;
     private String gender;
     private String maritalStatus;
     private String street;

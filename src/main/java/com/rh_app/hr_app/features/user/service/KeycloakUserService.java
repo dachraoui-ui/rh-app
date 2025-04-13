@@ -80,8 +80,8 @@ public class KeycloakUserService {
         user.singleAttribute("isActive", String.valueOf(dto.getIsActive()));
 
         // Update new custom attributes if they are not null.
-        if (dto.getBirthDate() != null) {
-            user.singleAttribute("birthDate", dto.getBirthDate());
+        if (dto.getBirth_Date() != null) {
+            user.singleAttribute("Birth_Date", dto.getBirth_Date());
         }
         if (dto.getGender() != null) {
             user.singleAttribute("gender", dto.getGender());
@@ -140,6 +140,17 @@ public class KeycloakUserService {
     public String deleteUser(String userId) {
         keycloak.realm(realm).users().get(userId).remove();
         return "User deleted successfully";
+    }
+
+    // 6. Get User by Id
+    public Optional<UserDto> getUserById(String userId) {
+        try {
+            UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
+            return Optional.of(UserMapper.fromUserRepresentation(user));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     // Helper method to get a user's roles (excluding default roles)

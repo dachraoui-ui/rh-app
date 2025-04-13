@@ -69,6 +69,14 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAnyRole('DRH','GRH')")
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable String userId) {
+        return userService.getUserById(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     // ✅ Get users by department - DRH or GRH
     @PreAuthorize("hasAnyRole('DRH','GRH')")
     @GetMapping("/department/{departmentId}")
