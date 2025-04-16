@@ -27,8 +27,8 @@ public class UserMapper {
         if (dto.getCin() != null) {
             attributes.put("cin", List.of(dto.getCin()));
         }
-        if (dto.getTel() != null) {
-            attributes.put("telephone", List.of(dto.getTel()));
+        if (dto.getTelephone() != null) {
+            attributes.put("telephone", List.of(dto.getTelephone()));
         }
         if (dto.getPhotoUrl() != null) {
             attributes.put("photoUrl", List.of(dto.getPhotoUrl()));
@@ -48,49 +48,49 @@ public class UserMapper {
             attributes.put("Birth_Date", List.of(dto.getBirth_Date()));
         }
         if (dto.getGender() != null) {
-            attributes.put("gender", List.of(dto.getGender()));
+            attributes.put("Gender", List.of(dto.getGender()));
         }
-        if (dto.getMaritalStatus() != null) {
-            attributes.put("maritalStatus", List.of(dto.getMaritalStatus()));
+        if (dto.getMaterial_Status() != null) {
+            attributes.put("Material_Status", List.of(dto.getMaterial_Status()));
         }
         if (dto.getStreet() != null) {
-            attributes.put("street", List.of(dto.getStreet()));
+            attributes.put("Street", List.of(dto.getStreet()));
         }
         if (dto.getCity() != null) {
-            attributes.put("city", List.of(dto.getCity()));
+            attributes.put("City", List.of(dto.getCity()));
         }
-        if (dto.getZip() != null) {
-            attributes.put("zip", List.of(dto.getZip()));
+        if (dto.getZIP() != null) {
+            attributes.put("ZIP", List.of(dto.getZIP()));
         }
         if (dto.getCountry() != null) {
-            attributes.put("country", List.of(dto.getCountry()));
+            attributes.put("Country", List.of(dto.getCountry()));
         }
-        if (dto.getPaySchedule() != null) {
-            attributes.put("paySchedule", List.of(dto.getPaySchedule()));
+        if (dto.getPay_Schedule() != null) {
+            attributes.put("Pay_Schedule", List.of(dto.getPay_Schedule()));
         }
-        if (dto.getPayType() != null) {
-            attributes.put("payType", List.of(dto.getPayType()));
+        if (dto.getPay_Type() != null) {
+            attributes.put("Pay_Type", List.of(dto.getPay_Type()));
         }
         if (dto.getEthnicity() != null) {
-            attributes.put("ethnicity", List.of(dto.getEthnicity()));
+            attributes.put("Ethnicity", List.of(dto.getEthnicity()));
         }
-        if (dto.getWorkPhone() != null) {
-            attributes.put("workPhone", List.of(dto.getWorkPhone()));
+        if (dto.getWork_Phone() != null) {
+            attributes.put("Work_Phone", List.of(dto.getWork_Phone()));
         }
-        if (dto.getMobilePhone() != null) {
-            attributes.put("mobilePhone", List.of(dto.getMobilePhone()));
+        if (dto.getMobile_Phone() != null) {
+            attributes.put("Mobile_Phone", List.of(dto.getMobile_Phone()));
         }
-        if (dto.getWorkEmail() != null) {
-            attributes.put("workEmail", List.of(dto.getWorkEmail()));
+        if (dto.getWork_Email() != null) {
+            attributes.put("Work_Email", List.of(dto.getWork_Email()));
         }
         if (dto.getHire_Date() != null) {
             attributes.put("Hire_Date", List.of(dto.getHire_Date()));
         }
-        if (dto.getJobTitle() != null) {
-            attributes.put("jobTitle", List.of(dto.getJobTitle()));
+        if (dto.getJob_Title() != null) {
+            attributes.put("Job_Title", List.of(dto.getJob_Title()));
         }
         if (dto.getLocation() != null) {
-            attributes.put("location", List.of(dto.getLocation()));
+            attributes.put("Location", List.of(dto.getLocation()));
         }
 
         user.setAttributes(attributes);
@@ -110,7 +110,7 @@ public class UserMapper {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .cin(getAttribute(attributes, "cin"))
-                .tel(getAttribute(attributes, "telephone"))
+                .telephone(getAttribute(attributes, "telephone"))
                 .photoUrl(getAttribute(attributes, "photoUrl"))
                 .departmentId(getAttribute(attributes, "departmentId"))
                 .salary(parseDouble(getAttribute(attributes, "salary")))
@@ -119,21 +119,21 @@ public class UserMapper {
                 .isActive(user.isEnabled())
                 // New attributes
                 .Birth_Date(getAttribute(attributes, "Birth_Date"))
-                .gender(getAttribute(attributes, "gender"))
-                .maritalStatus(getAttribute(attributes, "maritalStatus"))
-                .street(getAttribute(attributes, "street"))
-                .city(getAttribute(attributes, "city"))
-                .zip(getAttribute(attributes, "zip"))
-                .country(getAttribute(attributes, "country"))
-                .paySchedule(getAttribute(attributes, "paySchedule"))
-                .payType(getAttribute(attributes, "payType"))
-                .ethnicity(getAttribute(attributes, "ethnicity"))
-                .workPhone(getAttribute(attributes, "workPhone"))
-                .mobilePhone(getAttribute(attributes, "mobilePhone"))
-                .workEmail(getAttribute(attributes, "workEmail"))
+                .Gender(getAttribute(attributes, "Gender"))
+                .Material_Status(getAttribute(attributes, "Material_Status"))
+                .Street(getAttribute(attributes, "Street"))
+                .City(getAttribute(attributes, "City"))
+                .ZIP(getAttribute(attributes, "ZIP"))
+                .Country(getAttribute(attributes, "Country"))
+                .Pay_Schedule(getAttribute(attributes, "Pay_Schedule"))
+                .Pay_Type(getAttribute(attributes, "Pay_Type"))
+                .Ethnicity(getAttribute(attributes, "Ethnicity"))
+                .Work_Phone(getAttribute(attributes, "Work_Phone"))
+                .Mobile_Phone(getAttribute(attributes, "Mobile_Phone"))
+                .Work_Email(getAttribute(attributes, "Work_Email"))
                 .Hire_Date(getAttribute(attributes, "Hire_Date"))
-                .jobTitle(getAttribute(attributes, "jobTitle"))
-                .location(getAttribute(attributes, "location"))
+                .Job_Title(getAttribute(attributes, "Job_Title"))
+                .Location(getAttribute(attributes, "Location"))
                 .build();
     }
 

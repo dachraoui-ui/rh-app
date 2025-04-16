@@ -84,9 +84,16 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsersByDepartment(departmentId));
     }
 
-    // ✅ TEST endpoint: see your roles (DEBUG ONLY)
-    @GetMapping("/me/roles")
-    public ResponseEntity<?> myRoles(Authentication authentication) {
-        return ResponseEntity.ok(authentication.getAuthorities());
+    @PreAuthorize("hasAnyRole('DRH')")
+    @GetMapping("/archived")
+    public ResponseEntity<List<UserDto>> getArchivedUsers() {
+        return ResponseEntity.ok(userService.getArchivedUsers());
     }
+
+
+    // ✅ TEST endpoint: see your roles (DEBUG ONLY)
+//    @GetMapping("/me/roles")
+//    public ResponseEntity<?> myRoles(Authentication authentication) {
+//        return ResponseEntity.ok(authentication.getAuthorities());
+//    }
 }

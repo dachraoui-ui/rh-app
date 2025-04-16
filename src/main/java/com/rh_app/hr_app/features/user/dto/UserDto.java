@@ -13,7 +13,7 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private String cin;
-    private String tel;
+    private String telephone;
     private String photoUrl;
     private String departmentId;
     private Double salary;
@@ -23,19 +23,19 @@ public class UserDto {
 
 
     private String Birth_Date;
-    private String gender;
-    private String maritalStatus;
-    private String street;
-    private String city;
-    private String zip;
-    private String country;
-    private String paySchedule;
-    private String payType;
-    private String ethnicity;
-    private String workPhone;
-    private String mobilePhone;
-    private String workEmail;
+    private String Gender;
+    private String Material_Status;
+    private String Street;
+    private String City;
+    private String ZIP;
+    private String Country;
+    private String Pay_Schedule;
+    private String Pay_Type;
+    private String Ethnicity;
+    private String Work_Phone;
+    private String Mobile_Phone;
+    private String Work_Email;
     private String Hire_Date;
-    private String jobTitle;
-    private String location;
+    private String Job_Title;
+    private String Location;
 }

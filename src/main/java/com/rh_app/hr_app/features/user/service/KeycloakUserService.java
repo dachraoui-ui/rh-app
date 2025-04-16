@@ -73,7 +73,7 @@ public class KeycloakUserService {
 
         // Update basic custom attributes
         user.singleAttribute("cin", dto.getCin());
-        user.singleAttribute("tel", dto.getTel());
+        user.singleAttribute("telephone", dto.getTelephone());
         user.singleAttribute("photoUrl", dto.getPhotoUrl());
         user.singleAttribute("salary", String.valueOf(dto.getSalary()));
         user.singleAttribute("departmentId", dto.getDepartmentId());
@@ -84,49 +84,49 @@ public class KeycloakUserService {
             user.singleAttribute("Birth_Date", dto.getBirth_Date());
         }
         if (dto.getGender() != null) {
-            user.singleAttribute("gender", dto.getGender());
+            user.singleAttribute("Gender", dto.getGender());
         }
-        if (dto.getMaritalStatus() != null) {
-            user.singleAttribute("maritalStatus", dto.getMaritalStatus());
+        if (dto.getMaterial_Status() != null) {
+            user.singleAttribute("Material_Status", dto.getMaterial_Status());
         }
         if (dto.getStreet() != null) {
-            user.singleAttribute("street", dto.getStreet());
+            user.singleAttribute("Street", dto.getStreet());
         }
         if (dto.getCity() != null) {
-            user.singleAttribute("city", dto.getCity());
+            user.singleAttribute("City", dto.getCity());
         }
-        if (dto.getZip() != null) {
-            user.singleAttribute("zip", dto.getZip());
+        if (dto.getZIP() != null) {
+            user.singleAttribute("ZIP", dto.getZIP());
         }
         if (dto.getCountry() != null) {
-            user.singleAttribute("country", dto.getCountry());
+            user.singleAttribute("Country", dto.getCountry());
         }
-        if (dto.getPaySchedule() != null) {
-            user.singleAttribute("paySchedule", dto.getPaySchedule());
+        if (dto.getPay_Schedule() != null) {
+            user.singleAttribute("Pay_Schedule", dto.getPay_Schedule());
         }
-        if (dto.getPayType() != null) {
-            user.singleAttribute("payType", dto.getPayType());
+        if (dto.getPay_Type() != null) {
+            user.singleAttribute("Pay_Type", dto.getPay_Type());
         }
         if (dto.getEthnicity() != null) {
-            user.singleAttribute("ethnicity", dto.getEthnicity());
+            user.singleAttribute("Ethnicity", dto.getEthnicity());
         }
-        if (dto.getWorkPhone() != null) {
-            user.singleAttribute("workPhone", dto.getWorkPhone());
+        if (dto.getWork_Phone() != null) {
+            user.singleAttribute("Work_Phone", dto.getWork_Phone());
         }
-        if (dto.getMobilePhone() != null) {
-            user.singleAttribute("mobilePhone", dto.getMobilePhone());
+        if (dto.getMobile_Phone() != null) {
+            user.singleAttribute("Mobile_Phone", dto.getMobile_Phone());
         }
-        if (dto.getWorkEmail() != null) {
-            user.singleAttribute("workEmail", dto.getWorkEmail());
+        if (dto.getWork_Email() != null) {
+            user.singleAttribute("Work_Email", dto.getWork_Email());
         }
         if (dto.getHire_Date() != null) {
             user.singleAttribute("Hire_Date", dto.getHire_Date());
         }
-        if (dto.getJobTitle() != null) {
-            user.singleAttribute("jobTitle", dto.getJobTitle());
+        if (dto.getJob_Title() != null) {
+            user.singleAttribute("Job_Title", dto.getJob_Title());
         }
         if (dto.getLocation() != null) {
-            user.singleAttribute("location", dto.getLocation());
+            user.singleAttribute("Location", dto.getLocation());
         }
 
         // Set enable/disable status
@@ -211,4 +211,10 @@ public class KeycloakUserService {
 
         return users != null && !users.isEmpty();
     }
+    public List<UserDto> getArchivedUsers() {
+        return getAllUsers().stream()
+                .filter(user -> !Boolean.TRUE.equals(user.getIsActive()))
+                .collect(Collectors.toList());
+    }
+
 }
