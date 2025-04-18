@@ -1,5 +1,6 @@
 package com.rh_app.hr_app.features.user.controller;
 
+import com.rh_app.hr_app.features.user.dto.SessionDto;
 import com.rh_app.hr_app.features.user.dto.UserDto;
 import com.rh_app.hr_app.features.user.service.KeycloakUserService;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -88,6 +88,13 @@ public class UserController {
     @GetMapping("/archived")
     public ResponseEntity<List<UserDto>> getArchivedUsers() {
         return ResponseEntity.ok(userService.getArchivedUsers());
+    }
+
+    //  retrieve active sessions for all users
+    @PreAuthorize("hasAnyRole('DRH','GRH')")
+    @GetMapping("/sessions")
+    public ResponseEntity<List<SessionDto>> getAllSessions() {
+        return ResponseEntity.ok(userService.getAllUserSessions());
     }
 
 

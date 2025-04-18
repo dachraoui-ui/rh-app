@@ -24,7 +24,5 @@ public class Department {
     private String description;
 
 
-    @OneToMany(mappedBy = "department")
-    private Set<UserDepartment> userDepartments; // Updated relation
 }
 

@@ -1,6 +1,7 @@
 package com.rh_app.hr_app.features.user.service;
 
 import com.rh_app.hr_app.core.email.MailService;
+import com.rh_app.hr_app.features.user.dto.SessionDto;
 import com.rh_app.hr_app.features.user.dto.UserDto;
 import com.rh_app.hr_app.features.user.mapper.UserMapper;
 import jakarta.ws.rs.core.Response;
@@ -9,6 +10,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +29,7 @@ public class KeycloakUserService {
     @Value("${keycloak.admin.realm}")
     private String realm;
 
-    // 1. Create User
+    //  Create User
     public String createUser(UserDto dto) {
         // Use the mapper to include all custom attributes
         UserRepresentation user = UserMapper.toUserRepresentation(dto);
@@ -61,7 +63,7 @@ public class KeycloakUserService {
         return "User created successfully with ID: " + userId;
     }
 
-    // 2. Update User Profile
+    //  Update User Profile
     public String updateUserProfile(String userId, UserDto dto) {
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
 
@@ -78,6 +80,7 @@ public class KeycloakUserService {
         user.singleAttribute("salary", String.valueOf(dto.getSalary()));
         user.singleAttribute("departmentId", dto.getDepartmentId());
         user.singleAttribute("isActive", String.valueOf(dto.getIsActive()));
+
 
         // Update new custom attributes if they are not null.
         if (dto.getBirth_Date() != null) {
@@ -135,14 +138,14 @@ public class KeycloakUserService {
         keycloak.realm(realm).users().get(userId).update(user);
         return "User updated successfully";
     }
+    //  Delete User
 
-    // 3. Delete User
     public String deleteUser(String userId) {
         keycloak.realm(realm).users().get(userId).remove();
         return "User deleted successfully";
     }
 
-    // 6. Get User by Id
+    //  Get User by ID
     public Optional<UserDto> getUserById(String userId) {
         try {
             UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
@@ -163,7 +166,7 @@ public class KeycloakUserService {
                 .collect(Collectors.toList());
     }
 
-    // 4. Get All Users
+    //  Get All Users
     public List<UserDto> getAllUsers() {
         return keycloak.realm(realm).users().list()
                 .stream()
@@ -176,7 +179,7 @@ public class KeycloakUserService {
                 .collect(Collectors.toList());
     }
 
-    // 5. Get User by Username
+    //  Get User by Username
     public Optional<UserDto> getUserByUsername(String username) {
         List<UserRepresentation> users = keycloak.realm(realm).users().search(username);
         return users.stream().findFirst().map(user -> {
@@ -187,7 +190,7 @@ public class KeycloakUserService {
         });
     }
 
-    // 6. Get Users by Department
+    //  Get Users by Department
     public List<UserDto> getUsersByDepartment(String departmentId) {
         return keycloak.realm(realm).users().list()
                 .stream()
@@ -203,7 +206,7 @@ public class KeycloakUserService {
                 .collect(Collectors.toList());
     }
 
-    // 7. Check if User Exists by Email
+    //  Check if User Exists by Email
     public boolean userExistsByEmail(String email) {
         List<UserRepresentation> users = keycloak.realm(realm)
                 .users()
@@ -211,10 +214,34 @@ public class KeycloakUserService {
 
         return users != null && !users.isEmpty();
     }
+    //  Get Archived Users
     public List<UserDto> getArchivedUsers() {
         return getAllUsers().stream()
                 .filter(user -> !Boolean.TRUE.equals(user.getIsActive()))
                 .collect(Collectors.toList());
     }
+
+    /** Return *all* active sessions for the realm. */
+    public List<SessionDto> getAllUserSessions() {
+
+        // 1. Grab every user in the realm
+        return keycloak.realm(realm).users().list().stream()
+
+                // 2. For each user, fetch their sessions and flatten the streams
+                .flatMap(user -> keycloak.realm(realm)
+                        .users()
+                        .get(user.getId())
+                        .getUserSessions()
+                        .stream()
+                        .map(s -> new SessionDto(
+                                s.getId(),
+                                s.getIpAddress(),
+                                s.getStart(),
+                                s.getLastAccess(),
+                                s.getUsername())))
+                // 3. Collect into an *unmodifiable* list (JDK 16+) – use Collectors.toList() on JDK 8–15
+                .toList();
+    }
+
 
 }
