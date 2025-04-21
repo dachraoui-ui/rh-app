@@ -76,5 +76,4 @@ public class DepartmentService {
                 .collect(Collectors.toList());
     }
 
-
 }

@@ -13,6 +13,7 @@ public class UserMapper {
     public static UserRepresentation toUserRepresentation(UserDto dto) {
         UserRepresentation user = new UserRepresentation();
 
+        // Basic user properties
         user.setUsername(dto.getEmail()); // using email as username
         user.setEmail(dto.getEmail());
         user.setFirstName(dto.getFirstName());
@@ -22,11 +23,12 @@ public class UserMapper {
         // Custom Keycloak attributes
         Map<String, List<String>> attributes = new HashMap<>();
 
+        // Existing attributes
         if (dto.getCin() != null) {
             attributes.put("cin", List.of(dto.getCin()));
         }
-        if (dto.getTel() != null) {
-            attributes.put("telephone", List.of(dto.getTel()));
+        if (dto.getTelephone() != null) {
+            attributes.put("telephone", List.of(dto.getTelephone()));
         }
         if (dto.getPhotoUrl() != null) {
             attributes.put("photoUrl", List.of(dto.getPhotoUrl()));
@@ -37,9 +39,65 @@ public class UserMapper {
         if (dto.getSalary() != null) {
             attributes.put("salary", List.of(dto.getSalary().toString()));
         }
-        // Adding the role field
         if (dto.getRole() != null) {
             attributes.put("role", List.of(dto.getRole()));
+        }
+
+        // New attributes
+        if (dto.getBirth_Date() != null) {
+            attributes.put("Birth_Date", List.of(dto.getBirth_Date()));
+        }
+        if (dto.getGender() != null) {
+            attributes.put("Gender", List.of(dto.getGender()));
+        }
+        if (dto.getMaterial_Status() != null) {
+            attributes.put("Material_Status", List.of(dto.getMaterial_Status()));
+        }
+        if (dto.getStreet() != null) {
+            attributes.put("Street", List.of(dto.getStreet()));
+        }
+        if (dto.getCity() != null) {
+            attributes.put("City", List.of(dto.getCity()));
+        }
+        if (dto.getZIP() != null) {
+            attributes.put("ZIP", List.of(dto.getZIP()));
+        }
+        if (dto.getCountry() != null) {
+            attributes.put("Country", List.of(dto.getCountry()));
+        }
+        if (dto.getPay_Schedule() != null) {
+            attributes.put("Pay_Schedule", List.of(dto.getPay_Schedule()));
+        }
+        if (dto.getPay_Type() != null) {
+            attributes.put("Pay_Type", List.of(dto.getPay_Type()));
+        }
+        if (dto.getEthnicity() != null) {
+            attributes.put("Ethnicity", List.of(dto.getEthnicity()));
+        }
+        if (dto.getWork_Phone() != null) {
+            attributes.put("Work_Phone", List.of(dto.getWork_Phone()));
+        }
+        if (dto.getMobile_Phone() != null) {
+            attributes.put("Mobile_Phone", List.of(dto.getMobile_Phone()));
+        }
+        if (dto.getWork_Email() != null) {
+            attributes.put("Work_Email", List.of(dto.getWork_Email()));
+        }
+        if (dto.getHire_Date() != null) {
+            attributes.put("Hire_Date", List.of(dto.getHire_Date()));
+        }
+        if (dto.getJob_Title() != null) {
+            attributes.put("Job_Title", List.of(dto.getJob_Title()));
+        }
+        if (dto.getLocation() != null) {
+            attributes.put("Location", List.of(dto.getLocation()));
+        }
+        if (dto.getContract() != null) {
+            attributes.put("contract", List.of(dto.getContract()));
+        }
+        if (dto.getIsArchived() != null) {
+            attributes.put("isArchived",
+                    List.of(dto.getIsArchived().toString()));   // "true" / "false"
         }
 
         user.setAttributes(attributes);
@@ -59,13 +117,34 @@ public class UserMapper {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .cin(getAttribute(attributes, "cin"))
-                .tel(getAttribute(attributes, "telephone"))
+                .telephone(getAttribute(attributes, "telephone"))
                 .photoUrl(getAttribute(attributes, "photoUrl"))
                 .departmentId(getAttribute(attributes, "departmentId"))
                 .salary(parseDouble(getAttribute(attributes, "salary")))
                 // Mapping the role field from the Keycloak attribute
                 .role(getAttribute(attributes, "role"))
                 .isActive(user.isEnabled())
+                // New attributes
+                .Birth_Date(getAttribute(attributes, "Birth_Date"))
+                .Gender(getAttribute(attributes, "Gender"))
+                .Material_Status(getAttribute(attributes, "Material_Status"))
+                .Street(getAttribute(attributes, "Street"))
+                .City(getAttribute(attributes, "City"))
+                .ZIP(getAttribute(attributes, "ZIP"))
+                .Country(getAttribute(attributes, "Country"))
+                .Pay_Schedule(getAttribute(attributes, "Pay_Schedule"))
+                .Pay_Type(getAttribute(attributes, "Pay_Type"))
+                .Ethnicity(getAttribute(attributes, "Ethnicity"))
+                .Work_Phone(getAttribute(attributes, "Work_Phone"))
+                .Mobile_Phone(getAttribute(attributes, "Mobile_Phone"))
+                .Work_Email(getAttribute(attributes, "Work_Email"))
+                .Hire_Date(getAttribute(attributes, "Hire_Date"))
+                .Job_Title(getAttribute(attributes, "Job_Title"))
+                .Location(getAttribute(attributes, "Location"))
+                .contract(getAttribute(attributes, "contract"))
+                .isArchived(parseBoolean(getAttribute(attributes, "isArchived")))
+                //  archived flag (convert String → Boolean)
+
                 .build();
     }
 
@@ -82,5 +161,8 @@ public class UserMapper {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+    private static Boolean parseBoolean(String v) {
+        return v == null ? null : Boolean.valueOf(v);   // "true"/"false" → Boolean
     }
 }

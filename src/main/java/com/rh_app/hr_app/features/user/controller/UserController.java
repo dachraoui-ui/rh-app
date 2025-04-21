@@ -1,5 +1,6 @@
 package com.rh_app.hr_app.features.user.controller;
 
+import com.rh_app.hr_app.features.user.dto.SessionDto;
 import com.rh_app.hr_app.features.user.dto.UserDto;
 import com.rh_app.hr_app.features.user.service.KeycloakUserService;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,6 +69,14 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAnyRole('DRH','GRH')")
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable String userId) {
+        return userService.getUserById(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     // ✅ Get users by department - DRH or GRH
     @PreAuthorize("hasAnyRole('DRH','GRH')")
     @GetMapping("/department/{departmentId}")
@@ -76,9 +84,46 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsersByDepartment(departmentId));
     }
 
-    // ✅ TEST endpoint: see your roles (DEBUG ONLY)
-    @GetMapping("/me/roles")
-    public ResponseEntity<?> myRoles(Authentication authentication) {
-        return ResponseEntity.ok(authentication.getAuthorities());
+    @PreAuthorize("hasAnyRole('DRH')")
+    @GetMapping("/active")
+    public ResponseEntity<List<UserDto>> getActiveUsers() {
+        return ResponseEntity.ok(userService.getActiveUsers());
     }
+    // Endpoint pour archiver un utilisateur
+    @PreAuthorize("hasRole('DRH')")
+    @PutMapping("/{userId}/archive")
+    public ResponseEntity<Void> archiveUser(@PathVariable String userId) {
+        userService.archiveUser(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    // Endpoint pour récupérer les utilisateurs archivés
+    @PreAuthorize("hasRole('DRH')")
+    @GetMapping("/archived")
+    public ResponseEntity<List<UserDto>> getArchivedUsers() {
+        List<UserDto> archivedUsers = userService.getArchivedUsers();
+        return ResponseEntity.ok(archivedUsers);
+    }
+
+    // Endpoint pour restaurer un utilisateur archivé
+    @PreAuthorize("hasRole('DRH')")
+    @PutMapping("/{userId}/restore")
+    public ResponseEntity<Void> restoreUser(@PathVariable String userId) {
+        userService.restoreUser(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    //  retrieve active sessions for all users
+    @PreAuthorize("hasAnyRole('DRH','GRH')")
+    @GetMapping("/sessions")
+    public ResponseEntity<List<SessionDto>> getAllSessions() {
+        return ResponseEntity.ok(userService.getAllUserSessions());
+    }
+
+
+    // ✅ TEST endpoint: see your roles (DEBUG ONLY)
+//    @GetMapping("/me/roles")
+//    public ResponseEntity<?> myRoles(Authentication authentication) {
+//        return ResponseEntity.ok(authentication.getAuthorities());
+//    }
 }

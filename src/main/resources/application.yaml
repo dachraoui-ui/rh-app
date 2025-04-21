@@ -22,7 +22,7 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9090/realms/RH-Realm  # 👈 This is the public URL for JWT validation
-          jwk-set-uri: http://localhost:9090/realms/RH-Realm/protocol/openid-connect/certs
+#          jwk-set-uri: http://localhost:9090/realms/RH-Realm/protocol/openid-connect/certs
 
   mail:
     host: smtp.gmail.com
@@ -35,6 +35,14 @@ spring:
           auth: true
           starttls:
             enable: true
+
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 1MB
+
+file:
+  upload-dir: ./uploads
 
 server:
   port: 8083
