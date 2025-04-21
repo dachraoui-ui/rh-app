@@ -14,9 +14,7 @@ import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -131,6 +129,12 @@ public class KeycloakUserService {
         if (dto.getLocation() != null) {
             user.singleAttribute("Location", dto.getLocation());
         }
+        if (dto.getContract() != null) {
+            user.singleAttribute("contract", dto.getContract());
+        }
+        if (dto.getIsArchived() != null) {
+            user.singleAttribute("isArchived", String.valueOf(dto.getIsArchived()));
+        }
 
         // Set enable/disable status
         user.setEnabled(Boolean.TRUE.equals(dto.getIsActive()));
@@ -214,12 +218,53 @@ public class KeycloakUserService {
 
         return users != null && !users.isEmpty();
     }
-    //  Get Archived Users
-    public List<UserDto> getArchivedUsers() {
+    //  Get Active Users
+    public List<UserDto> getActiveUsers() {
         return getAllUsers().stream()
                 .filter(user -> !Boolean.TRUE.equals(user.getIsActive()))
                 .collect(Collectors.toList());
     }
+    // archive the user
+    public void archiveUser(String userId) {
+        try {
+            UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
+            Map<String, List<String>> attributes = user.getAttributes() != null ?
+                    user.getAttributes() : new HashMap<>();
+
+            attributes.put("isArchived", List.of("true"));
+            user.setEnabled(false); // disable the user
+            user.setAttributes(attributes);
+
+            keycloak.realm(realm).users().get(userId).update(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible d'archiver l'utilisateur", e);
+        }
+    }
+
+    // get the archived users
+    public List<UserDto> getArchivedUsers() {
+        return keycloak.realm(realm).users().list().stream()
+                .map(UserMapper::fromUserRepresentation)
+                .filter(user -> Boolean.TRUE.equals(user.getIsArchived()))
+                .collect(Collectors.toList());
+    }
+    // restore the userx
+    public void restoreUser(String userId) {
+        try {
+            UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
+            Map<String, List<String>> attributes = user.getAttributes() != null ?
+                    user.getAttributes() : new HashMap<>();
+
+            attributes.put("isArchived", List.of("false"));
+            user.setAttributes(attributes);
+
+            keycloak.realm(realm).users().get(userId).update(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible de restaurer l'utilisateur", e);
+        }
+    }
+
+
 
     /** Return *all* active sessions for the realm. */
     public List<SessionDto> getAllUserSessions() {

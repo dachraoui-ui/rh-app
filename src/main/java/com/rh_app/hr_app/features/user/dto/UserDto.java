@@ -38,4 +38,6 @@ public class UserDto {
     private String Hire_Date;
     private String Job_Title;
     private String Location;
+    private String contract;
+    private Boolean isArchived;
 }

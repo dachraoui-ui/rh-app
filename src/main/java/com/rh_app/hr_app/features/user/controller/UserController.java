@@ -85,9 +85,32 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyRole('DRH')")
+    @GetMapping("/active")
+    public ResponseEntity<List<UserDto>> getActiveUsers() {
+        return ResponseEntity.ok(userService.getActiveUsers());
+    }
+    // Endpoint pour archiver un utilisateur
+    @PreAuthorize("hasRole('DRH')")
+    @PutMapping("/{userId}/archive")
+    public ResponseEntity<Void> archiveUser(@PathVariable String userId) {
+        userService.archiveUser(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    // Endpoint pour récupérer les utilisateurs archivés
+    @PreAuthorize("hasRole('DRH')")
     @GetMapping("/archived")
     public ResponseEntity<List<UserDto>> getArchivedUsers() {
-        return ResponseEntity.ok(userService.getArchivedUsers());
+        List<UserDto> archivedUsers = userService.getArchivedUsers();
+        return ResponseEntity.ok(archivedUsers);
+    }
+
+    // Endpoint pour restaurer un utilisateur archivé
+    @PreAuthorize("hasRole('DRH')")
+    @PutMapping("/{userId}/restore")
+    public ResponseEntity<Void> restoreUser(@PathVariable String userId) {
+        userService.restoreUser(userId);
+        return ResponseEntity.ok().build();
     }
 
     //  retrieve active sessions for all users

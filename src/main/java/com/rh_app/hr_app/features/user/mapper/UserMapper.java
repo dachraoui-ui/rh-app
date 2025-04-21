@@ -92,6 +92,13 @@ public class UserMapper {
         if (dto.getLocation() != null) {
             attributes.put("Location", List.of(dto.getLocation()));
         }
+        if (dto.getContract() != null) {
+            attributes.put("contract", List.of(dto.getContract()));
+        }
+        if (dto.getIsArchived() != null) {
+            attributes.put("isArchived",
+                    List.of(dto.getIsArchived().toString()));   // "true" / "false"
+        }
 
         user.setAttributes(attributes);
         user.setRequiredActions(List.of("UPDATE_PASSWORD"));
@@ -134,6 +141,10 @@ public class UserMapper {
                 .Hire_Date(getAttribute(attributes, "Hire_Date"))
                 .Job_Title(getAttribute(attributes, "Job_Title"))
                 .Location(getAttribute(attributes, "Location"))
+                .contract(getAttribute(attributes, "contract"))
+                .isArchived(parseBoolean(getAttribute(attributes, "isArchived")))
+                //  archived flag (convert String → Boolean)
+
                 .build();
     }
 
@@ -150,5 +161,8 @@ public class UserMapper {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+    private static Boolean parseBoolean(String v) {
+        return v == null ? null : Boolean.valueOf(v);   // "true"/"false" → Boolean
     }
 }
