@@ -12,6 +12,7 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -192,6 +193,11 @@ public class KeycloakUserService {
             userDto.setRole(roles != null && !roles.isEmpty() ? roles.get(0) : null);
             return userDto;
         });
+    }
+    public UserDto getCurrentUser(String username) {
+        return getUserByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "User not found in Keycloak: " + username));
     }
 
     //  Get Users by Department
