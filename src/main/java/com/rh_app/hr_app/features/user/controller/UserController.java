@@ -108,7 +108,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    // Endpoint pour récupérer les utilisateurs archivés
+    // Endpoint to get archived users
     @PreAuthorize("hasRole('DRH')")
     @GetMapping("/archived")
     public ResponseEntity<List<UserDto>> getArchivedUsers() {
@@ -116,7 +116,7 @@ public class UserController {
         return ResponseEntity.ok(archivedUsers);
     }
 
-    // Endpoint pour restaurer un utilisateur archivé
+    // Endpoint to restore an archived user
     @PreAuthorize("hasRole('DRH')")
     @PutMapping("/{userId}/restore")
     public ResponseEntity<Void> restoreUser(@PathVariable String userId) {

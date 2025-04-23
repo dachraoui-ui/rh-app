@@ -45,6 +45,7 @@ services:
       - KC_DB_URL=jdbc:postgresql://postgres:5432/hr_db
       - KC_DB_USERNAME=admin
       - KC_DB_PASSWORD=admin
+      - KC_DB_SCHEMA=keycloak
     command: [ "start-dev" ]
     depends_on:
       - postgres
