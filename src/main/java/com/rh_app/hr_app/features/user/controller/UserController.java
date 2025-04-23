@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,12 +71,21 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasAnyRole('DRH','GRH')")
+    @PreAuthorize("hasAnyRole('DRH','GRH','EMPLOYEE','INTERN')")
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getUserById(@PathVariable String userId) {
         return userService.getUserById(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+        // Keycloak puts the username in the "preferred_username" claim
+        String username = jwt.getClaimAsString("preferred_username");
+        UserDto me = userService.getCurrentUser(username);
+        return ResponseEntity.ok(me);
     }
 
     // ✅ Get users by department - DRH or GRH
@@ -97,7 +108,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    // Endpoint pour récupérer les utilisateurs archivés
+    // Endpoint to get archived users
     @PreAuthorize("hasRole('DRH')")
     @GetMapping("/archived")
     public ResponseEntity<List<UserDto>> getArchivedUsers() {
@@ -105,7 +116,7 @@ public class UserController {
         return ResponseEntity.ok(archivedUsers);
     }
 
-    // Endpoint pour restaurer un utilisateur archivé
+    // Endpoint to restore an archived user
     @PreAuthorize("hasRole('DRH')")
     @PutMapping("/{userId}/restore")
     public ResponseEntity<Void> restoreUser(@PathVariable String userId) {

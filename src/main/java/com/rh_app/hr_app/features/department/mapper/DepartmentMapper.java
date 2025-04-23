@@ -5,6 +5,7 @@ import com.rh_app.hr_app.features.department.model.Department;
 
 public class DepartmentMapper {
 
+
     public static DepartmentDto toDto(Department department) {
         return DepartmentDto.builder()
                 .id(department.getId())
