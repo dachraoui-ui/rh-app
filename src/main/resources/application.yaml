@@ -52,6 +52,11 @@ logging:
   level:
     org.springframework.security: DEBUG
 
+# ticket time to resolve
+tickets:
+  sla:
+    overdue-hours: 72     # escalate after 3 day
+
 # ✅ Keycloak Admin Client (for managing users/roles via Admin API)
 keycloak:
   admin:

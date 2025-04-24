@@ -4,4 +4,5 @@ public enum TicketStatus {
     OPEN,           // Créé, pas encore pris en charge
     IN_PROGRESS,    // En cours de traitement
     RESOLVED,       // Terminé
+    ESCALATED
 }
