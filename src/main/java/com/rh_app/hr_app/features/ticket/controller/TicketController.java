@@ -12,9 +12,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+
+
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -61,31 +61,59 @@ public class TicketController {
     }
 
     /* ─────────────────────────────
-       4️⃣  ALL ROLES ▸ get by id
-       ───────────────────────────── */
+   4️⃣  ALL ROLES ▸ get by id
+   ───────────────────────────── */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','GRH','DRH')")
     public TicketDto get(@PathVariable Long id,
                          @AuthenticationPrincipal Jwt jwt) {
 
-        TicketDto  ticket   = service.findById(id);
-        String     username = jwt.getClaim("preferred_username");
-        List<String> roles  = jwt.getClaim("realm_access.roles");
+        TicketDto ticket   = service.findById(id);
+        String    username = jwt.getClaim("preferred_username");
 
-        boolean isEmpOrIntern =
-                roles.contains("EMPLOYEE") || roles.contains("INTERN");
-        boolean isGrh  = roles.contains("GRH");
-        boolean isDrh  = roles.contains("DRH");
+        // ───── pull authorities from the SecurityContext ─────
+        var auths = org.springframework.security.core.context.SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getAuthorities();
 
-        if (isDrh)                                       return ticket;      // DRH sees all
-        if (isEmpOrIntern && ticket.getCreatedBy().equals(username))
-            return ticket;      // own tickets
-        if (isGrh && username.equals(ticket.getAssignedTo()))
-            return ticket;      // assigned tickets
+        boolean isDrh         = auths.stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_DRH"));
+        boolean isGrh         = auths.stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_GRH"));
+        boolean isEmpOrIntern = auths.stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE")
+                        || a.getAuthority().equals("ROLE_INTERN"));
 
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "You are not allowed to view this ticket.");
+        if (isDrh) return ticket;                                    // DRH sees everything
+        if (isEmpOrIntern && ticket.getCreatedBy().equals(username)) // owner
+            return ticket;
+        if (isGrh && username.equals(ticket.getAssignedTo()))        // handler
+            return ticket;
+
+        throw new org.springframework.web.server.ResponseStatusException(
+                HttpStatus.FORBIDDEN, "You are not allowed to view this ticket.");
     }
+
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public Page<TicketDto> allTickets(Pageable pageable) {
+        return service.listAll(pageable);
+    }
+    /* ===========================================
+   5 bis)  GRH / DRH ▸  quick-resolve ticket
+   =========================================== */
+    @PostMapping("/{id}/resolve")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    @ResponseStatus(HttpStatus.OK)
+    public TicketDto resolve(@PathVariable Long id,
+                             @AuthenticationPrincipal Jwt jwt) {
+
+        String editor = jwt.getClaim("preferred_username");
+        return service.resolve(id, editor);
+    }
+
 
     /* ─────────────────────────────
        5️⃣  GRH / DRH ▸ workflow patch

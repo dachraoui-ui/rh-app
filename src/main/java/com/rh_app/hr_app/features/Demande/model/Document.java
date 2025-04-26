@@ -1,7 +1,6 @@
 package com.rh_app.hr_app.features.Demande.model;
 
 
-import com.rh_app.hr_app.core.enums.StatutDocument;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,8 +22,7 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idDemandeDoc;
 
-    @Column(nullable = false)
-    private StatutDocument statut;
+
 
     @Column(nullable = false)
     private String typeDoc;

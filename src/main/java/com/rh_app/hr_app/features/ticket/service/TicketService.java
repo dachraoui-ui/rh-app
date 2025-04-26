@@ -58,6 +58,30 @@ public class TicketService {
     }
 
     /* ─────────────────────────────
+   LIST *ALL*  (GRH / DRH)
+   ───────────────────────────── */
+    public Page<TicketDto> listAll(Pageable page) {
+        return repo.findAll(page).map(TicketMapper::toDto);
+    }
+
+    /* ─────────────────────────────
+   QUICK RESOLVE  (GRH / DRH)
+   ───────────────────────────── */
+    @Transactional
+    public TicketDto resolve(Long id, String editor) {
+        Ticket t = repo.findById(id).orElseThrow();
+
+        t.setStatus(TicketStatus.RESOLVED);
+        if (t.getResolvedAt() == null) {
+            t.setResolvedAt(java.time.Instant.now());
+        }
+        // keep history of who did it (optional)
+        t.setAssignedTo(editor);
+
+        return TicketMapper.toDto(t);   // entity is already dirty-tracked
+    }
+
+    /* ─────────────────────────────
        #3  WORKFLOW / PATCH (GRH, DRH)
        ───────────────────────────── */
     @Transactional
