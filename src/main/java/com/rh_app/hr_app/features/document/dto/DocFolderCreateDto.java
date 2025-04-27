@@ -2,6 +2,6 @@
 package com.rh_app.hr_app.features.document.dto;
 
 public record DocFolderCreateDto(
-        String name,
-        Long   parentId      // null for root
+        String name
 ) {}
+

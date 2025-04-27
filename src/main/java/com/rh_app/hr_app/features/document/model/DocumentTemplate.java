@@ -3,8 +3,12 @@ package com.rh_app.hr_app.features.document.model;
 
 import com.rh_app.hr_app.core.enums.document_enums.DocTemplateType;
 import jakarta.persistence.*;
+import jakarta.websocket.Decoder;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -45,8 +49,9 @@ public class DocumentTemplate {
     @Column(nullable = false)
     private long size;
 
-    @Lob
-    @Column(name = "file_data", nullable = false, columnDefinition = "bytea")
+    @Lob                                          // large field
+    @JdbcTypeCode(SqlTypes.BINARY)// <-- tell Hibernate “use BYTEA”
+    @Column(name = "file_data", nullable = false)
     private byte[] data;
 
     /* ---------- Lifecycle ---------- */

@@ -1,4 +1,3 @@
-
 package com.rh_app.hr_app.features.document.model;
 
 import jakarta.persistence.*;
@@ -8,12 +7,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
 
 /**
- * Logical folder to organise templates. Nested folders are allowed
- * through the self-referencing parent property.
+ * Simple folder to organize templates without hierarchical structure.
  */
 @Entity
 @Table(name = "doc_folder",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"parent_id", "name"}))
+        uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 @Data
 public class DocumentFolder {
 
@@ -21,14 +19,9 @@ public class DocumentFolder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Folder name without path separators. */
-    @Column(nullable = false, length = 60)
+    /** Folder name. */
+    @Column(nullable = false, length = 60, unique = true)
     private String name;
-
-    /** Parent folder; null means “root”. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private DocumentFolder parent;
 
     /* ----- audit ----- */
     @CreationTimestamp

@@ -9,8 +9,7 @@ import java.time.Instant;
 @Value
 @Builder
 public class DocFolderDto {
-    Long   id;
-    String name;          // “Finance”, “Letters”, etc.
-    Long   parentId;      // null = root
+    Long id;
+    String name;          // "Finance", "Letters", etc.
     Instant createdAt;
 }

@@ -14,27 +14,21 @@ public final class DocFolderMapper {
         return DocFolderDto.builder()
                 .id(f.getId())
                 .name(f.getName())
-                .parentId(f.getParent() != null ? f.getParent().getId() : null)
                 .createdAt(f.getCreatedAt())
                 .build();
     }
 
     /* -------- Create -------- */
-    public static DocumentFolder toEntityForCreate(DocFolderCreateDto dto,
-                                                   DocumentFolder parent) {
+    public static DocumentFolder toEntityForCreate(DocFolderCreateDto dto) {
         DocumentFolder f = new DocumentFolder();
         f.setName(dto.name());
-        f.setParent(parent);               // may be null for root
         return f;
     }
 
-    /* -------- PATCH (rename / move) -------- */
+    /* -------- PATCH (rename) -------- */
     public static void applyUpdate(DocumentFolder entity,
-                                   DocFolderUpdateDto patch,
-                                   DocumentFolder newParent) {
+                                   DocFolderUpdateDto patch) {
         if (patch.name() != null)
             entity.setName(patch.name());
-        if (patch.parentId() != null)
-            entity.setParent(newParent);           // may be null to move to root
     }
 }
