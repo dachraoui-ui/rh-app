@@ -2120,3 +2120,273 @@ Consider defining a bean of type 'com.rh_app.hr_app.features.user.service.Keyclo
 2025-04-29 14:24:05 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8083 (http) with context path '/'
 2025-04-29 14:24:05 [restartedMain] INFO  com.rh_app.hr_app.HrAppApplication - Started HrAppApplication in 2.469 seconds (process running for 1245.926)
 2025-04-29 14:24:05 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-04-29 14:25:01 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-04-29 14:25:01 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-04-29 14:25:01 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2025-04-29 14:25:01 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/users
+2025-04-29 14:25:01 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/departments
+2025-04-29 14:25:01 [http-nio-8083-exec-2] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:25:01 [http-nio-8083-exec-1] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:25:01 [http-nio-8083-exec-2] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:25:01 [http-nio-8083-exec-1] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:25:01 [http-nio-8083-exec-2] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:25:01 [http-nio-8083-exec-1] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:25:01 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/departments
+2025-04-29 14:25:01 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/users
+2025-04-29 14:25:01 [http-nio-8083-exec-1] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.getAllUsers(); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:25:01 [http-nio-8083-exec-2] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.department.controller.DepartmentController.getAll(); target is of class [com.rh_app.hr_app.features.department.controller.DepartmentController]
+2025-04-29 14:25:01 [http-nio-8083-exec-1] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.getAllUsers(); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:25:01 [http-nio-8083-exec-2] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.department.controller.DepartmentController.getAll(); target is of class [com.rh_app.hr_app.features.department.controller.DepartmentController]
+2025-04-29 14:25:01 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/users
+2025-04-29 14:25:01 [http-nio-8083-exec-5] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:25:01 [http-nio-8083-exec-5] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:25:01 [http-nio-8083-exec-5] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:25:01 [http-nio-8083-exec-4] DEBUG o.s.security.web.FilterChainProxy - Securing OPTIONS /api/users/5305b46a-f8b0-4575-ad24-f42edd85e298
+2025-04-29 14:25:01 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/users
+2025-04-29 14:25:01 [http-nio-8083-exec-5] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.getAllUsers(); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:25:01 [http-nio-8083-exec-5] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.getAllUsers(); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:25:01 [http-nio-8083-exec-3] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/users/5305b46a-f8b0-4575-ad24-f42edd85e298
+2025-04-29 14:25:01 [http-nio-8083-exec-3] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:25:01 [http-nio-8083-exec-3] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:25:01 [http-nio-8083-exec-3] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:25:01 [http-nio-8083-exec-3] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/users/5305b46a-f8b0-4575-ad24-f42edd85e298
+2025-04-29 14:25:01 [http-nio-8083-exec-3] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.getUserById(java.lang.String); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:25:01 [http-nio-8083-exec-3] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.getUserById(java.lang.String); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:25:01 [http-nio-8083-exec-6] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/9c974ba2-94b0-4333-8ee0-8fca04fdb145.jpg
+2025-04-29 14:25:01 [http-nio-8083-exec-6] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/9c974ba2-94b0-4333-8ee0-8fca04fdb145.jpg
+2025-04-29 14:25:01 [http-nio-8083-exec-6] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/9c974ba2-94b0-4333-8ee0-8fca04fdb145.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/9c974ba2-94b0-4333-8ee0-8fca04fdb145.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-7] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/2d97547a-2f66-4587-9066-c512f132158e.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/2d97547a-2f66-4587-9066-c512f132158e.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/1426d02f-d573-41b2-9d3f-eda7ae61682e.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/c7382b77-efe3-44e2-942a-478bf751aa89.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/0ff7d84d-e35b-4742-817f-1a08f3cff899.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/2879dca3-e3c0-47ec-8c6e-741083e9dde2.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-4] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/8f842e93-c662-4b68-828f-cadd5e3aa243.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/1426d02f-d573-41b2-9d3f-eda7ae61682e.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/2879dca3-e3c0-47ec-8c6e-741083e9dde2.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/0ff7d84d-e35b-4742-817f-1a08f3cff899.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/c7382b77-efe3-44e2-942a-478bf751aa89.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-4] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/8f842e93-c662-4b68-828f-cadd5e3aa243.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-8] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-4] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-10] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-9] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-1] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-2] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-3] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/3a2b195c-3d2e-41d1-8bd4-f3831659d488.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-3] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/3a2b195c-3d2e-41d1-8bd4-f3831659d488.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/91c3e9d1-6faa-41be-b610-7c7134a5f6a4.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-6] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/051d6c8a-b2bf-40ba-9079-7b283d21bca2.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-3] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/5b38bdc5-b0a9-4c86-a3d8-63a963076988.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/8fe9f4c4-1fe1-4d98-8e7c-d83ee41a2ae9.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/7b0b9069-c0b4-44d7-b44b-116e1ac056cc.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/91c3e9d1-6faa-41be-b610-7c7134a5f6a4.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-6] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/051d6c8a-b2bf-40ba-9079-7b283d21bca2.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/5b38bdc5-b0a9-4c86-a3d8-63a963076988.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/8fe9f4c4-1fe1-4d98-8e7c-d83ee41a2ae9.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/7b0b9069-c0b4-44d7-b44b-116e1ac056cc.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/705277f5-4cad-426e-96d7-7eef97cd2324.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-5] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-6] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-7] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/705277f5-4cad-426e-96d7-7eef97cd2324.jpg
+2025-04-29 14:25:02 [http-nio-8083-exec-10] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-8] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:02 [http-nio-8083-exec-1] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:25:03 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/departments
+2025-04-29 14:25:03 [http-nio-8083-exec-9] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:25:03 [http-nio-8083-exec-9] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:25:03 [http-nio-8083-exec-9] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:25:03 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/departments
+2025-04-29 14:25:03 [http-nio-8083-exec-9] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.department.controller.DepartmentController.getAll(); target is of class [com.rh_app.hr_app.features.department.controller.DepartmentController]
+2025-04-29 14:25:03 [http-nio-8083-exec-9] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.department.controller.DepartmentController.getAll(); target is of class [com.rh_app.hr_app.features.department.controller.DepartmentController]
+2025-04-29 14:25:37 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/upload
+2025-04-29 14:25:37 [http-nio-8083-exec-1] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:25:37 [http-nio-8083-exec-1] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:25:37 [http-nio-8083-exec-1] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:25:37 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/upload
+2025-04-29 14:25:37 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/baaab957-9d33-4b54-bbf1-6600bfcf40f1.jpeg
+2025-04-29 14:25:37 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/baaab957-9d33-4b54-bbf1-6600bfcf40f1.jpeg
+2025-04-29 14:25:37 [http-nio-8083-exec-9] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/users/create
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/users/create
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.createUser(com.rh_app.hr_app.features.user.dto.UserDto); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.createUser(com.rh_app.hr_app.features.user.dto.UserDto); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.h.f.u.s.KeycloakUserService - Sending user creation request to Keycloak
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.h.f.u.s.KeycloakUserService - Keycloak response status: 201
+2025-04-29 14:26:03 [http-nio-8083-exec-7] INFO  c.r.h.f.u.s.KeycloakUserService - User created in Keycloak with ID: 5d85e487-8e45-40b3-8d6e-84b1a7d319ef
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.h.f.u.s.KeycloakUserService - Setting temporary password for user: 5d85e487-8e45-40b3-8d6e-84b1a7d319ef
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.h.f.u.s.KeycloakUserService - Temporary password set successfully
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.h.f.u.s.KeycloakUserService - Checking for role assignment: EMPLOYEE
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.h.f.u.s.KeycloakUserService - Existing roles in Keycloak: default-roles-rh-realm, DRH, offline_access, GRH, uma_authorization, INTERN, EMPLOYEE
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.h.f.u.s.KeycloakUserService - Found matching role: EMPLOYEE (requested: EMPLOYEE)
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.h.f.u.s.KeycloakUserService - Role 'EMPLOYEE' assigned successfully
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.h.f.u.s.KeycloakUserService - Attempting to send activation email to: raydineri07@gmail.com
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.hr_app.core.email.MailService - Activation URL created: http://localhost:4200/activate?tempPw=Raydineri07@gmail.com
+2025-04-29 14:26:03 [http-nio-8083-exec-7] DEBUG c.r.hr_app.core.email.MailService - Sending activation email
+2025-04-29 14:26:05 [http-nio-8083-exec-7] INFO  c.r.hr_app.core.email.MailService - Activation email sent successfully to: raydineri07@gmail.com
+2025-04-29 14:26:05 [http-nio-8083-exec-7] DEBUG c.r.h.f.u.s.KeycloakUserService - Activation email sent successfully
+2025-04-29 14:26:06 [http-nio-8083-exec-4] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/users
+2025-04-29 14:26:06 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/departments
+2025-04-29 14:26:06 [http-nio-8083-exec-4] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:26:06 [http-nio-8083-exec-5] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:26:06 [http-nio-8083-exec-5] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:26:06 [http-nio-8083-exec-4] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:26:06 [http-nio-8083-exec-4] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:26:06 [http-nio-8083-exec-5] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:26:06 [http-nio-8083-exec-4] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/users
+2025-04-29 14:26:06 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/departments
+2025-04-29 14:26:06 [http-nio-8083-exec-4] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.getAllUsers(); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:26:06 [http-nio-8083-exec-5] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.department.controller.DepartmentController.getAll(); target is of class [com.rh_app.hr_app.features.department.controller.DepartmentController]
+2025-04-29 14:26:06 [http-nio-8083-exec-4] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.getAllUsers(); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:26:06 [http-nio-8083-exec-5] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.department.controller.DepartmentController.getAll(); target is of class [com.rh_app.hr_app.features.department.controller.DepartmentController]
+2025-04-29 14:26:06 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/2d97547a-2f66-4587-9066-c512f132158e.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/9c974ba2-94b0-4333-8ee0-8fca04fdb145.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/2d97547a-2f66-4587-9066-c512f132158e.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/9c974ba2-94b0-4333-8ee0-8fca04fdb145.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/2879dca3-e3c0-47ec-8c6e-741083e9dde2.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/2879dca3-e3c0-47ec-8c6e-741083e9dde2.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/1426d02f-d573-41b2-9d3f-eda7ae61682e.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/1426d02f-d573-41b2-9d3f-eda7ae61682e.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-2] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-8] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-10] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-1] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/c7382b77-efe3-44e2-942a-478bf751aa89.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/c7382b77-efe3-44e2-942a-478bf751aa89.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-6] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/0ff7d84d-e35b-4742-817f-1a08f3cff899.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-6] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/0ff7d84d-e35b-4742-817f-1a08f3cff899.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-1] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-3] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/8f842e93-c662-4b68-828f-cadd5e3aa243.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/3a2b195c-3d2e-41d1-8bd4-f3831659d488.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/051d6c8a-b2bf-40ba-9079-7b283d21bca2.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-4] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/91c3e9d1-6faa-41be-b610-7c7134a5f6a4.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-3] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/8f842e93-c662-4b68-828f-cadd5e3aa243.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/051d6c8a-b2bf-40ba-9079-7b283d21bca2.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-4] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/91c3e9d1-6faa-41be-b610-7c7134a5f6a4.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/3a2b195c-3d2e-41d1-8bd4-f3831659d488.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-6] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-4] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-5] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-7] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-3] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/8fe9f4c4-1fe1-4d98-8e7c-d83ee41a2ae9.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/8fe9f4c4-1fe1-4d98-8e7c-d83ee41a2ae9.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/7b0b9069-c0b4-44d7-b44b-116e1ac056cc.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/7b0b9069-c0b4-44d7-b44b-116e1ac056cc.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-8] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/5b38bdc5-b0a9-4c86-a3d8-63a963076988.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/705277f5-4cad-426e-96d7-7eef97cd2324.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/5b38bdc5-b0a9-4c86-a3d8-63a963076988.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/baaab957-9d33-4b54-bbf1-6600bfcf40f1.jpeg
+2025-04-29 14:26:06 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/705277f5-4cad-426e-96d7-7eef97cd2324.jpg
+2025-04-29 14:26:06 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/baaab957-9d33-4b54-bbf1-6600bfcf40f1.jpeg
+2025-04-29 14:26:06 [http-nio-8083-exec-2] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-1] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-10] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:06 [http-nio-8083-exec-9] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:26:37 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/departments
+2025-04-29 14:26:37 [http-nio-8083-exec-1] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:26:37 [http-nio-8083-exec-1] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:26:37 [http-nio-8083-exec-1] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:26:37 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/departments
+2025-04-29 14:26:37 [http-nio-8083-exec-1] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.department.controller.DepartmentController.getAll(); target is of class [com.rh_app.hr_app.features.department.controller.DepartmentController]
+2025-04-29 14:26:37 [http-nio-8083-exec-1] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.department.controller.DepartmentController.getAll(); target is of class [com.rh_app.hr_app.features.department.controller.DepartmentController]
+2025-04-29 14:27:31 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/upload
+2025-04-29 14:27:31 [http-nio-8083-exec-5] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:27:31 [http-nio-8083-exec-5] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:27:31 [http-nio-8083-exec-5] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:27:31 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/upload
+2025-04-29 14:27:31 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/133a32ea-80ae-4463-bbb3-3633a7c708b8.jpg
+2025-04-29 14:27:31 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/133a32ea-80ae-4463-bbb3-3633a7c708b8.jpg
+2025-04-29 14:27:31 [http-nio-8083-exec-7] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/users/create
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/users/create
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.createUser(com.rh_app.hr_app.features.user.dto.UserDto); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.createUser(com.rh_app.hr_app.features.user.dto.UserDto); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.h.f.u.s.KeycloakUserService - Sending user creation request to Keycloak
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.h.f.u.s.KeycloakUserService - Keycloak response status: 201
+2025-04-29 14:27:57 [http-nio-8083-exec-9] INFO  c.r.h.f.u.s.KeycloakUserService - User created in Keycloak with ID: c24363c7-476e-49ba-8f6c-b4583d67f71c
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.h.f.u.s.KeycloakUserService - Setting temporary password for user: c24363c7-476e-49ba-8f6c-b4583d67f71c
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.h.f.u.s.KeycloakUserService - Temporary password set successfully
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.h.f.u.s.KeycloakUserService - Checking for role assignment: INTERN
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.h.f.u.s.KeycloakUserService - Existing roles in Keycloak: default-roles-rh-realm, DRH, offline_access, GRH, uma_authorization, INTERN, EMPLOYEE
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.h.f.u.s.KeycloakUserService - Found matching role: INTERN (requested: INTERN)
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.h.f.u.s.KeycloakUserService - Role 'INTERN' assigned successfully
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.h.f.u.s.KeycloakUserService - Attempting to send activation email to: ggggg@gmail.com
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.hr_app.core.email.MailService - Activation URL created: http://localhost:4200/activate?tempPw=12345@ggg11A
+2025-04-29 14:27:57 [http-nio-8083-exec-9] DEBUG c.r.hr_app.core.email.MailService - Sending activation email
+2025-04-29 14:27:59 [http-nio-8083-exec-9] INFO  c.r.hr_app.core.email.MailService - Activation email sent successfully to: ggggg@gmail.com
+2025-04-29 14:27:59 [http-nio-8083-exec-9] DEBUG c.r.h.f.u.s.KeycloakUserService - Activation email sent successfully
+2025-04-29 14:28:00 [http-nio-8083-exec-6] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/departments
+2025-04-29 14:28:00 [http-nio-8083-exec-4] DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/users
+2025-04-29 14:28:00 [http-nio-8083-exec-6] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:28:00 [http-nio-8083-exec-4] DEBUG c.r.h.c.s.KeycloakJwtAuthenticationConverter - JWT contains roles: default-roles-rh-realm, offline_access, DRH, uma_authorization
+2025-04-29 14:28:00 [http-nio-8083-exec-4] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:28:00 [http-nio-8083-exec-6] DEBUG o.s.s.o.s.r.a.JwtAuthenticationProvider - Authenticated token
+2025-04-29 14:28:00 [http-nio-8083-exec-4] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:28:00 [http-nio-8083-exec-6] DEBUG o.s.s.o.s.r.w.a.BearerTokenAuthenticationFilter - Set SecurityContextHolder to JwtAuthenticationToken [Principal=org.springframework.security.oauth2.jwt.Jwt@657776d8, Credentials=[PROTECTED], Authenticated=true, Details=WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=null], Granted Authorities=[ROLE_DRH]]
+2025-04-29 14:28:00 [http-nio-8083-exec-4] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/users
+2025-04-29 14:28:00 [http-nio-8083-exec-6] DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/departments
+2025-04-29 14:28:00 [http-nio-8083-exec-4] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.getAllUsers(); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:28:00 [http-nio-8083-exec-6] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.department.controller.DepartmentController.getAll(); target is of class [com.rh_app.hr_app.features.department.controller.DepartmentController]
+2025-04-29 14:28:00 [http-nio-8083-exec-4] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.user.controller.UserController.getAllUsers(); target is of class [com.rh_app.hr_app.features.user.controller.UserController]
+2025-04-29 14:28:00 [http-nio-8083-exec-6] DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.rh_app.hr_app.features.department.controller.DepartmentController.getAll(); target is of class [com.rh_app.hr_app.features.department.controller.DepartmentController]
+2025-04-29 14:28:00 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/2879dca3-e3c0-47ec-8c6e-741083e9dde2.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/c7382b77-efe3-44e2-942a-478bf751aa89.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/0ff7d84d-e35b-4742-817f-1a08f3cff899.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/2d97547a-2f66-4587-9066-c512f132158e.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/9c974ba2-94b0-4333-8ee0-8fca04fdb145.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/1426d02f-d573-41b2-9d3f-eda7ae61682e.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/0ff7d84d-e35b-4742-817f-1a08f3cff899.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/9c974ba2-94b0-4333-8ee0-8fca04fdb145.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/2879dca3-e3c0-47ec-8c6e-741083e9dde2.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/2d97547a-2f66-4587-9066-c512f132158e.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/1426d02f-d573-41b2-9d3f-eda7ae61682e.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/c7382b77-efe3-44e2-942a-478bf751aa89.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-5] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-1] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-8] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-10] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-7] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-2] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/3a2b195c-3d2e-41d1-8bd4-f3831659d488.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-3] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/8f842e93-c662-4b68-828f-cadd5e3aa243.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-6] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/051d6c8a-b2bf-40ba-9079-7b283d21bca2.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-4] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/133a32ea-80ae-4463-bbb3-3633a7c708b8.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/91c3e9d1-6faa-41be-b610-7c7134a5f6a4.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/8fe9f4c4-1fe1-4d98-8e7c-d83ee41a2ae9.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-4] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/133a32ea-80ae-4463-bbb3-3633a7c708b8.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-6] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/051d6c8a-b2bf-40ba-9079-7b283d21bca2.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-9] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/3a2b195c-3d2e-41d1-8bd4-f3831659d488.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-1] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/91c3e9d1-6faa-41be-b610-7c7134a5f6a4.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-10] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/8fe9f4c4-1fe1-4d98-8e7c-d83ee41a2ae9.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-3] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/8f842e93-c662-4b68-828f-cadd5e3aa243.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-4] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-1] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-10] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-3] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-6] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-9] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/7b0b9069-c0b4-44d7-b44b-116e1ac056cc.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/baaab957-9d33-4b54-bbf1-6600bfcf40f1.jpeg
+2025-04-29 14:28:00 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/5b38bdc5-b0a9-4c86-a3d8-63a963076988.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Securing GET /uploads/705277f5-4cad-426e-96d7-7eef97cd2324.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-8] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/7b0b9069-c0b4-44d7-b44b-116e1ac056cc.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-7] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/705277f5-4cad-426e-96d7-7eef97cd2324.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-2] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/baaab957-9d33-4b54-bbf1-6600bfcf40f1.jpeg
+2025-04-29 14:28:00 [http-nio-8083-exec-5] DEBUG o.s.security.web.FilterChainProxy - Secured GET /uploads/5b38bdc5-b0a9-4c86-a3d8-63a963076988.jpg
+2025-04-29 14:28:00 [http-nio-8083-exec-2] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-8] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-7] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-04-29 14:28:00 [http-nio-8083-exec-5] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
