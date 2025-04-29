@@ -5,7 +5,9 @@ import com.rh_app.hr_app.core.enums.document_enums.DocRequestStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -35,8 +37,10 @@ public class DocumentRequest {
     private DocRequestStatus status = DocRequestStatus.REQUESTED;
 
     @Lob
-    @Column(name = "output_data", columnDefinition = "bytea")
-    private byte[] outputData;           // final PDF (null until READY)
+    @JdbcTypeCode(SqlTypes.BINARY) // <-- Add this annotation
+    @Column(name = "output_data")
+    private byte[] outputData;
+
 
     @Column(length = 255)
     private String outputName;

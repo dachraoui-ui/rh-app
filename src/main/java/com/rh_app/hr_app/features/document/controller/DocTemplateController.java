@@ -29,6 +29,14 @@ public class DocTemplateController {
     public List<DocTemplateDto> list(@RequestParam Long folderId) {
         return service.listActiveInFolder(folderId);
     }
+    /**
+     * List all active templates across all folders
+     */
+    @GetMapping("/all")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','GRH','DRH')")
+    public List<DocTemplateDto> listAllActive() {
+        return service.listAllActive();
+    }
 
     /* ───────────────────────────────
        DRH uploads a new template

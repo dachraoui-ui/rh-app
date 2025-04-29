@@ -28,6 +28,16 @@ public class DocTemplateService {
         return tplRepo.findByActiveTrueAndFolderIdOrderByNameAsc(folderId)
                 .stream().map(DocTemplateMapper::toDto).toList();
     }
+    /**
+     * List all active templates across all folders, sorted by name
+     * @return List of all active document templates
+     */
+    public List<DocTemplateDto> listAllActive() {
+        return tplRepo.findByActiveTrueOrderByNameAsc()
+                .stream()
+                .map(DocTemplateMapper::toDto)
+                .toList();
+    }
 
     /* ---------- Upload by DRH ---------- */
     @Transactional

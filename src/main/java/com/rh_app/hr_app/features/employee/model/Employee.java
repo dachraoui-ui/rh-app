@@ -2,7 +2,7 @@ package com.rh_app.hr_app.features.employee.model;
 
 import com.rh_app.hr_app.features.department.model.Department;
 import com.rh_app.hr_app.features.meeting.model.EmployeeReunion;
-import com.rh_app.hr_app.features.role_Permission.model.Role;
+
 import com.rh_app.hr_app.features.task.model.DateAffectation;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,9 +44,7 @@ public class Employee {
     @JoinColumn(name = "department_id")
     private Department department;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
+
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
     private List<EmployeeReunion> employeeReunions;

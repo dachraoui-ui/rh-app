@@ -3,6 +3,8 @@ package com.rh_app.hr_app.core.email;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Service;
 public class MailService {
 
     private final JavaMailSender mailSender;
+    private static final Logger log = LoggerFactory.getLogger(MailService.class);
+
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -38,6 +42,8 @@ public class MailService {
             // e.g. http://localhost:4200/activate?tempPw=someTempPassword
             // The Angular route can then trigger Keycloak login for the user.
             String activationUrl = "http://localhost:4200/activate?tempPw=" + tempPassword;
+            log.debug("Activation URL created: {}", activationUrl);
+
 
             // 2) Build the HTML message
             // Keycloak sees the user's password is temporary -> forces password update
@@ -54,10 +60,15 @@ public class MailService {
                 """.formatted(tempPassword, activationUrl);
 
             helper.setText(content, true);
+            log.debug("Sending activation email");
             mailSender.send(message);
+            log.info("Activation email sent successfully to: {}", toEmail);
+
 
         } catch (MessagingException e) {
+            log.error("Failed to send activation email to {}: {}", toEmail, e.getMessage(), e);
             throw new RuntimeException("❌ Failed to send activation email", e);
         }
+
     }
 }

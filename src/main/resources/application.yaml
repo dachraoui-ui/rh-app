@@ -37,6 +37,7 @@ spring:
           starttls:
             enable: true
 
+
   servlet:
     multipart:
       max-file-size: 1MB
@@ -50,7 +51,19 @@ server:
 
 logging:
   level:
+    root: INFO
     org.springframework.security: DEBUG
+    org.springframework.web: INFO
+    org.springframework.mail: DEBUG
+    com.rh_app.hr_app: DEBUG  # This enables DEBUG level logging for your application package
+    com.rh_app.hr_app.features.user.service: DEBUG  # More specific logging for user service
+    com.rh_app.hr_app.features.user.controller: DEBUG  # More specific logging for user controller
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/hr-app.log  # This creates a log file
+
 
 # ticket time to resolve
 tickets:

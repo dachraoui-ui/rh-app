@@ -1,7 +1,10 @@
 package com.rh_app.hr_app.core.security;
 
+import com.rh_app.hr_app.features.user.service.KeycloakUserService;
 import jakarta.annotation.Nonnull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +18,7 @@ import java.util.stream.Collectors;
 public class KeycloakJwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     private static final Set<String> ALLOWED_ROLES = Set.of("DRH", "GRH", "EMPLOYEE","INTERN");
+    private static final Logger log = LoggerFactory.getLogger(KeycloakJwtAuthenticationConverter.class);
 
     @Override
     public AbstractAuthenticationToken convert(@Nonnull Jwt jwt) {
@@ -28,9 +32,14 @@ public class KeycloakJwtAuthenticationConverter implements Converter<Jwt, Abstra
 
         List<String> roles = (List<String>) realmAccess.get("roles");
 
+        // Log all incoming roles for debugging
+        log.debug("JWT contains roles: {}", String.join(", ", roles));
+
         return roles.stream()
-                .filter(role -> ALLOWED_ROLES.contains(role.toUpperCase()))
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                .map(role -> role.toUpperCase()) // Normalize to uppercase
+                .filter(role -> ALLOWED_ROLES.contains(role)) // Check against allowed roles
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toSet());
     }
+
 }

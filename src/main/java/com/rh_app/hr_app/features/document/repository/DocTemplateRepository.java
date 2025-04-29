@@ -10,6 +10,10 @@ public interface DocTemplateRepository extends JpaRepository<DocumentTemplate, L
 
     /* List visible templates for employees (active only). */
     List<DocumentTemplate> findByActiveTrueAndFolderIdOrderByNameAsc(Long folderId);
+    /**
+     * Find all active templates sorted by name
+     */
+    List<DocumentTemplate> findByActiveTrueOrderByNameAsc();
 
     /* KPI helpers ---------------------------------------------------- */
 

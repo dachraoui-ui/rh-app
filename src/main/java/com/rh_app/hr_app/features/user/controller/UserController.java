@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -133,8 +134,16 @@ public class UserController {
 
 
     // ✅ TEST endpoint: see your roles (DEBUG ONLY)
-//    @GetMapping("/me/roles")
-//    public ResponseEntity<?> myRoles(Authentication authentication) {
-//        return ResponseEntity.ok(authentication.getAuthorities());
-//    }
+    @GetMapping("/me/roles")
+    public ResponseEntity<?> myRoles(Authentication authentication) {
+        return ResponseEntity.ok(authentication.getAuthorities());
+    }
+    // ✅ TEST endpoint: see your roles (DEBUG ONLY)
+    @GetMapping("/list-all")
+    public ResponseEntity<List<String>> listAllRoles() {
+        List<String> allRoles = userService.listAllAvailableRoles();
+        return ResponseEntity.ok(allRoles);
+    }
+
+
 }

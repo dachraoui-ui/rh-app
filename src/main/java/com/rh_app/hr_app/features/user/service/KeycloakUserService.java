@@ -11,6 +11,8 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.idm.UserSessionRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,9 @@ public class KeycloakUserService {
     @Value("${keycloak.admin.realm}")
     private String realm;
 
+    private static final Logger log = LoggerFactory.getLogger(KeycloakUserService.class);
+
+
     //  Create User
     public String createUser(UserDto dto) {
         // Use the mapper to include all custom attributes
@@ -37,29 +42,111 @@ public class KeycloakUserService {
         boolean enabled = (dto.getIsActive() == null) || dto.getIsActive();
         user.setEnabled(enabled);
 
+        log.debug("Sending user creation request to Keycloak");
         Response response = keycloak.realm(realm).users().create(user);
+        log.debug("Keycloak response status: {}", response.getStatus());
+
         if (response.getStatus() != 201) {
+            log.error("Failed to create user in Keycloak. Status: {}", response.getStatus());
             return "Error creating user: " + response.getStatus();
         }
 
+
         String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+        log.info("User created in Keycloak with ID: {}", userId);
 
-        // Set temporary password
-        CredentialRepresentation password = new CredentialRepresentation();
-        password.setType(CredentialRepresentation.PASSWORD);
-        password.setTemporary(true);
-        password.setValue(dto.getPassword());
-        keycloak.realm(realm).users().get(userId).resetPassword(password);
 
-        // Assign a role if provided
-        if (dto.getRole() != null && !dto.getRole().isEmpty()) {
-            RoleRepresentation role = keycloak.realm(realm).roles().get(dto.getRole()).toRepresentation();
-            keycloak.realm(realm).users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
+        log.debug("Setting temporary password for user: {}", userId);
+        try {
+            // Set temporary password
+            CredentialRepresentation credential = new CredentialRepresentation();
+            credential.setTemporary(true);
+            credential.setType(CredentialRepresentation.PASSWORD);
+            credential.setValue(dto.getPassword());
+
+            keycloak.realm(realm).users().get(userId).resetPassword(credential);
+            log.debug("Temporary password set successfully");
+        } catch (Exception e) {
+            log.error("Error setting temporary password: {}", e.getMessage(), e);
+            return "User created, but failed to set password: " + e.getMessage();
         }
 
-        mailService.sendAccountActivationEmail(dto.getEmail(), dto.getPassword());
+
+        // Assign the single role if provided
+        log.debug("Checking for role assignment: {}", dto.getRole());
+        if (dto.getRole() != null && !dto.getRole().isEmpty()) {
+            try {
+                // First, list all existing roles for debugging
+                List<RoleRepresentation> allRoles = keycloak.realm(realm).roles().list();
+                log.debug("Existing roles in Keycloak: {}",
+                        allRoles.stream().map(RoleRepresentation::getName).collect(Collectors.joining(", ")));
+
+                // Try to find the role using case-insensitive match
+                String requestedRole = dto.getRole().toUpperCase(); // Normalize to uppercase
+                RoleRepresentation roleToAdd = null;
+
+                // Look for an existing role with case-insensitive matching
+                for (RoleRepresentation role : allRoles) {
+                    if (role.getName().equalsIgnoreCase(requestedRole)) {
+                        roleToAdd = role;
+                        log.debug("Found matching role: {} (requested: {})", role.getName(), requestedRole);
+                        break;
+                    }
+                }
+
+                // If no matching role was found, create it with the EXACT case needed
+                if (roleToAdd == null) {
+                    log.debug("No matching role found, creating role: {}", requestedRole);
+                    try {
+                        RoleRepresentation newRole = new RoleRepresentation();
+                        newRole.setName(requestedRole); // Use uppercase consistently
+                        keycloak.realm(realm).roles().create(newRole);
+
+                        // Small delay to ensure role creation is processed
+                        try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+
+                        // Now get the newly created role
+                        roleToAdd = keycloak.realm(realm).roles().get(requestedRole).toRepresentation();
+                        log.debug("Created new role: {}", requestedRole);
+                    } catch (Exception e) {
+                        if (e.getMessage().contains("409")) {
+                            log.warn("Role '{}' already exists but couldn't be found earlier", requestedRole);
+                            roleToAdd = keycloak.realm(realm).roles().get(requestedRole).toRepresentation();
+                        } else {
+                            throw e;
+                        }
+                    }
+                }
+
+                // Now assign the role
+                if (roleToAdd != null) {
+                    List<RoleRepresentation> rolesToAdd = Collections.singletonList(roleToAdd);
+                    keycloak.realm(realm).users().get(userId).roles().realmLevel().add(rolesToAdd);
+                    log.debug("Role '{}' assigned successfully", roleToAdd.getName());
+                } else {
+                    log.error("Failed to find or create role: {}", requestedRole);
+                }
+            } catch (Exception e) {
+                log.error("Error during role assignment: {}", e.getMessage(), e);
+                // Continue with user creation
+                return "User created successfully, but role assignment failed: " + e.getMessage();
+            }
+        }
+
+
+        // Send email
+        try {
+            log.debug("Attempting to send activation email to: {}", dto.getEmail());
+            mailService.sendAccountActivationEmail(dto.getEmail(), dto.getPassword());
+            log.debug("Activation email sent successfully");
+        } catch (Exception e) {
+            log.error("Failed to send activation email: {}", e.getMessage(), e);
+            return "User created successfully, but failed to send activation email: " + e.getMessage();
+        }
 
         return "User created successfully with ID: " + userId;
+
+
     }
 
     //  Update User Profile
@@ -293,6 +380,14 @@ public class KeycloakUserService {
                 // 3. Collect into an *unmodifiable* list (JDK 16+) – use Collectors.toList() on JDK 8–15
                 .toList();
     }
+
+    // test all available roles
+    public List<String> listAllAvailableRoles() {
+        return keycloak.realm(realm).roles().list().stream()
+                .map(role -> role.getName())
+                .collect(Collectors.toList());
+    }
+
 
 
 }
