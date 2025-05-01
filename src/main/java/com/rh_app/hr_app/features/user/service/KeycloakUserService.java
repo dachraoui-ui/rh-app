@@ -10,12 +10,13 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -381,12 +382,41 @@ public class KeycloakUserService {
                 .toList();
     }
 
-    // test all available roles
-    public List<String> listAllAvailableRoles() {
-        return keycloak.realm(realm).roles().list().stream()
-                .map(role -> role.getName())
-                .collect(Collectors.toList());
+    /* kick from session method */
+    public void kickFromSession(String sessionId) {
+        try {
+            // false  ⇒ terminate an online (regular) session
+            keycloak.realm(realm).deleteSession(sessionId, false);
+            log.info("Successfully terminated session with ID: {}", sessionId);
+        } catch (Exception e) {
+            log.error("Unable to terminate session with ID {}: {}", sessionId, e.getMessage(), e);
+            throw new RuntimeException("Unable to terminate session " + sessionId, e);
+        }
     }
+
+
+
+
+
+
+    /**
+     * Helper method to get a user ID by username
+     */
+    private String getUserIdByUsername(String username) {
+        List<UserRepresentation> users = keycloak.realm(realm).users().search(username);
+        if (users.isEmpty()) {
+            log.warn("User with username {} not found", username);
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+        return users.get(0).getId();
+    }
+
+//    // test all available roles
+//    public List<String> listAllAvailableRoles() {
+//        return keycloak.realm(realm).roles().list().stream()
+//                .map(role -> role.getName())
+//                .collect(Collectors.toList());
+//    }
 
 
 

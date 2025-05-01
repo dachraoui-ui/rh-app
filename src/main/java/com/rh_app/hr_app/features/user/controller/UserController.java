@@ -132,18 +132,27 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUserSessions());
     }
 
+     // Kick (logout) a single online session.
 
-    // ✅ TEST endpoint: see your roles (DEBUG ONLY)
-    @GetMapping("/me/roles")
-    public ResponseEntity<?> myRoles(Authentication authentication) {
-        return ResponseEntity.ok(authentication.getAuthorities());
+    @DeleteMapping("/sessions/{sessionId}")
+    @PreAuthorize("hasRole('DRH')")          // Only DRH can kick sessions
+    public ResponseEntity<Void> kickSession(@PathVariable String sessionId) {
+        userService.kickFromSession(sessionId);
+        return ResponseEntity.noContent().build(); // 204 No Content
     }
-    // ✅ TEST endpoint: see your roles (DEBUG ONLY)
-    @GetMapping("/list-all")
-    public ResponseEntity<List<String>> listAllRoles() {
-        List<String> allRoles = userService.listAllAvailableRoles();
-        return ResponseEntity.ok(allRoles);
-    }
+
+
+//    // ✅ TEST endpoint: see your roles (DEBUG ONLY)
+//    @GetMapping("/me/roles")
+//    public ResponseEntity<?> myRoles(Authentication authentication) {
+//        return ResponseEntity.ok(authentication.getAuthorities());
+//    }
+//    // ✅ TEST endpoint: see your roles (DEBUG ONLY)
+//    @GetMapping("/list-all")
+//    public ResponseEntity<List<String>> listAllRoles() {
+//        List<String> allRoles = userService.listAllAvailableRoles();
+//        return ResponseEntity.ok(allRoles);
+//    }
 
 
 }
