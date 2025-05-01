@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class KeycloakJwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-    private static final Set<String> ALLOWED_ROLES = Set.of("DRH", "GRH", "EMPLOYEE","INTERN");
+    private static final Set<String> ALLOWED_ROLES = Set.of("DRH", "GRH", "EMPLOYEE","INTERN","SUPPORT","MANAGER");
     private static final Logger log = LoggerFactory.getLogger(KeycloakJwtAuthenticationConverter.class);
 
     @Override

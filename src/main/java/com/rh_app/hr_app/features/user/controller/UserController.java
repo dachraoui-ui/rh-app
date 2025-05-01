@@ -72,7 +72,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasAnyRole('DRH','GRH','EMPLOYEE','INTERN')")
+    @PreAuthorize("hasAnyRole('DRH','GRH','EMPLOYEE','INTERN','SUPPORT','MANAGER')")
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getUserById(@PathVariable String userId) {
         return userService.getUserById(userId)

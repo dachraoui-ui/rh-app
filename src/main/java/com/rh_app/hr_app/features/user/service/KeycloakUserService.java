@@ -229,7 +229,77 @@ public class KeycloakUserService {
         user.setEnabled(Boolean.TRUE.equals(dto.getIsActive()));
 
         keycloak.realm(realm).users().get(userId).update(user);
+        // Check if a role update is requested
+        if (dto.getRole() != null && !dto.getRole().isEmpty()) {
+            try {
+                // First, get all current roles for the user and remove them
+                List<RoleRepresentation> currentRoles = keycloak.realm(realm).users().get(userId)
+                        .roles().realmLevel().listAll()
+                        .stream()
+                        .filter(role -> !role.getName().startsWith("default-roles-"))
+                        .collect(Collectors.toList());
+
+                if (!currentRoles.isEmpty()) {
+                    log.debug("Removing current roles: {}",
+                            currentRoles.stream().map(RoleRepresentation::getName).collect(Collectors.joining(", ")));
+                    keycloak.realm(realm).users().get(userId).roles().realmLevel().remove(currentRoles);
+                }
+
+                // Normalize to uppercase for consistency
+                String requestedRole = dto.getRole().toUpperCase();
+                RoleRepresentation roleToAdd = null;
+
+                // Look for an existing role with case-insensitive matching
+                List<RoleRepresentation> allRoles = keycloak.realm(realm).roles().list();
+                for (RoleRepresentation role : allRoles) {
+                    if (role.getName().equalsIgnoreCase(requestedRole)) {
+                        roleToAdd = role;
+                        log.debug("Found matching role: {} (requested: {})", role.getName(), requestedRole);
+                        break;
+                    }
+                }
+
+                // If no matching role was found, create it
+                if (roleToAdd == null) {
+                    log.debug("No matching role found, creating role: {}", requestedRole);
+                    try {
+                        RoleRepresentation newRoleObj = new RoleRepresentation();
+                        newRoleObj.setName(requestedRole);
+                        keycloak.realm(realm).roles().create(newRoleObj);
+
+                        // Small delay to ensure role creation is processed
+                        try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+
+                        // Now get the newly created role
+                        roleToAdd = keycloak.realm(realm).roles().get(requestedRole).toRepresentation();
+                        log.debug("Created new role: {}", requestedRole);
+                    } catch (Exception e) {
+                        if (e.getMessage().contains("409")) {
+                            log.warn("Role '{}' already exists but couldn't be found earlier", requestedRole);
+                            roleToAdd = keycloak.realm(realm).roles().get(requestedRole).toRepresentation();
+                        } else {
+                            throw e;
+                        }
+                    }
+                }
+
+                // Assign the new role
+                if (roleToAdd != null) {
+                    List<RoleRepresentation> rolesToAdd = Collections.singletonList(roleToAdd);
+                    keycloak.realm(realm).users().get(userId).roles().realmLevel().add(rolesToAdd);
+                    log.debug("Role '{}' assigned successfully", roleToAdd.getName());
+                } else {
+                    log.error("Failed to find or create role: {}", requestedRole);
+                    return "User updated successfully, but failed to update role: Could not find or create role";
+                }
+            } catch (Exception e) {
+                log.error("Error updating user role: {}", e.getMessage(), e);
+                return "User updated successfully, but failed to update role: " + e.getMessage();
+            }
+        }
+
         return "User updated successfully";
+
     }
     //  Delete User
 
