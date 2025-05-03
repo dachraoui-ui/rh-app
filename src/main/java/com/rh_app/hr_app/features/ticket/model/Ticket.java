@@ -73,7 +73,7 @@ public class Ticket {
     private int escalationLevel = 0;   // 0 = none, 1 = →manager, 2 = →DRH
 
     @Column(nullable = false)
-    private short priority = 3;        // 1-critical, 2-high, 3-normal, 4-low
+    private short priority = 3;        // 1-critical, 2-high, 3-medium, 4-low
 
     @Column(nullable = false)
     private short reopenCount = 0;

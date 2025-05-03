@@ -1,38 +1,38 @@
+/* src/main/java/com/rh_app/hr_app/features/ticket/dto/TicketDto.java */
 package com.rh_app.hr_app.features.ticket.dto;
 
-import com.rh_app.hr_app.core.enums.ticket_enums.TicketCategory;
-import com.rh_app.hr_app.core.enums.ticket_enums.TicketPriority;
-import com.rh_app.hr_app.core.enums.ticket_enums.TicketStatus;
+import com.rh_app.hr_app.core.enums.ticket_enums.*;
 import lombok.Builder;
 import lombok.Value;
 
 import java.time.Instant;
+import java.util.List;
 
-/**
- * Data Transfer Object for Ticket.
- * – Use `id == null` when sending data from the client to create a new ticket.
- * – All fields populated when returning a ticket to the client.
- */
-@Value
-@Builder
+@Value @Builder
 public class TicketDto {
 
-    Long id;
+    Long           id;
 
-    /* -------- Business data -------- */
-    TicketCategory category;
-    String         title;
-    String         description;
-    TicketStatus   status;
+    /* who / where */
+    Long           departmentId;
+    String         createdBy;       // Keycloak user-id of employee
+    String         assignedTo;      // null = unassigned
+    HrRequestCategory  requestType;     // e.g. SALARY_CERTIFICATE, ...
+
+    /* workflow */
     TicketPriority priority;
+    TicketStatus   status;
+    Integer        escalationLevel; // 0,1,2  (null ⇒ 0)
+    Integer        reopenedCount;   // starts at 0
 
-    /* -------- Keycloak users -------- */
-    String createdBy;
-    String assignedTo;
-    String prioritySetBy;
+    /* timestamps */
+    Instant        createdAt;
+    Instant        updatedAt;
+    Instant        resolvedAt;      // null until GRH closes
 
-    /* -------- Audit timestamps -------- */
-    Instant createdAt;
-    Instant resolvedAt;
-    Instant updatedAt;
+    /* free-text description */
+    String         description;
+
+    /* attachments meta */
+    List<TicketAttachmentDto> attachments;
 }
