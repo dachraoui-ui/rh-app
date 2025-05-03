@@ -1,71 +1,90 @@
-
 package com.rh_app.hr_app.features.ticket.model;
 
-import com.rh_app.hr_app.core.enums.ticket_enums.TicketCategory;
-import com.rh_app.hr_app.core.enums.ticket_enums.TicketPriority;
-import com.rh_app.hr_app.core.enums.ticket_enums.TicketStatus;
-
+import com.rh_app.hr_app.core.enums.ticket_enums.HrRequestCategory;
+import com.rh_app.hr_app.features.department.model.Department;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "ticket")
+@Table(name = "ticket",
+        indexes = {
+                @Index(name = "idx_ticket_department", columnList = "department_id"),
+                @Index(name = "idx_ticket_created_by", columnList = "created_by, created_at")
+        })
 @Data
 public class Ticket {
 
+    /**
+     * An HR-support ticket.
+     *
+     *  • created by an EMPLOYEE (max 5 / months enforced in service layer)
+     *  • first routed to GRH (who picks an assignee → Support OR Manager)
+     *  • 48 h unresolved → Manager escalation (escalationLevel = 1)
+     *  • 72 h unresolved → DRH escalation (escalationLevel = 2)
+     *  • Support / Manager mark RESOLVED
+     *  • only GRH can finally CLOSE (archive=true)
+     *
+     * No hard-delete: tickets live forever; “archived” just hides them from the
+     * active lists.
+     */
+
+    /* ---- identity ---- */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /* ---------------------- Business Data ---------------------- */
-
+    /* ---- classification ---- */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 40)
-    private TicketCategory category;
+    private HrRequestCategory category;   // replaces title
 
-    @Column(nullable = false, length = 255)
-    private String title;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
+    /* ---- content ---- */
+    @Column(nullable = false, length = 4_000)
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private TicketStatus status = TicketStatus.OPEN;
+    /* ---- relationships ---- */
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
-    private TicketPriority priority = TicketPriority.MEDIUM;
+    @OneToMany(mappedBy = "ticket",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private List<TicketAttachment> attachments = new ArrayList<>();
 
-    /* --------------------  Keycloak users ----------------- */
-
-    /** Username or UUID of the author in Keycloak */
+    /* ---- workflow ---- */
     @Column(nullable = false, length = 50)
-    private String createdBy;
+    private String createdBy;          // Keycloak id of employee
 
-    /** Username or UUID of the person assigned (GRH/DRH) */
     @Column(length = 50)
-    private String assignedTo;
+    private String assignedTo;         // support / manager / DRH (nullable)
 
-    /** Qui a fixé la priorité actuelle ? */
-    @Column(length = 50)
-    private String prioritySetBy;
+    @Column(length = 20, nullable = false)
+    private String status;             // OPEN, IN_PROGRESS, RESOLVED, CLOSED, ARCHIVED
 
-    /* --------------------- Traces & audit ----------------------- */
+    @Column(nullable = false)
+    private int escalationLevel = 0;   // 0 = none, 1 = →manager, 2 = →DRH
 
+    @Column(nullable = false)
+    private short priority = 3;        // 1-critical, 2-high, 3-normal, 4-low
+
+    @Column(nullable = false)
+    private short reopenCount = 0;
+
+    /* ---- timestamps ---- */
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column
-    private Instant resolvedAt;   // null until status becomes RESOLVED
-
-
     @UpdateTimestamp
-    @Column(nullable = false)
     private Instant updatedAt;
+
+    private Instant resolvedAt;
 }

@@ -27,7 +27,7 @@ public class TicketController {
        1️⃣  EMPLOYEE or INTERN ▸ create
        ───────────────────────────── */
     @PostMapping
-    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','SUPPORT','MANAGER')")
     @ResponseStatus(HttpStatus.CREATED)
     public TicketDto create(@Valid @RequestBody TicketDto dto,
                             @AuthenticationPrincipal Jwt jwt) {
@@ -40,7 +40,7 @@ public class TicketController {
        2️⃣  EMPLOYEE or INTERN ▸ my tickets
        ───────────────────────────── */
     @GetMapping("/my")
-    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','SUPPORT','MANAGER')")
     public Page<TicketDto> myTickets(Pageable pageable,
                                      @AuthenticationPrincipal Jwt jwt) {
 
