@@ -3,7 +3,8 @@ spring:
     name: hr-app
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/hr_db?currentSchema=app
+    url: jdbc:postgresql://localhost:5432/hr_db
+#    url: jdbc:postgresql://localhost:5432/hr_db?currentSchema=app
     username: admin
     password: admin
     driver-class-name: org.postgresql.Driver
@@ -16,14 +17,14 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        default_schema: app  # tell Hibernate that NEW tables it generates belong in `app`
+#        default_schema: app # tell Hibernate that NEW tables it generates belong in `app`
 
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9090/realms/RH-Realm  # 👈 This is the public URL for JWT validation
-#          jwk-set-uri: http://localhost:9090/realms/RH-Realm/protocol/openid-connect/certs
+#         jwk-set-uri: http://localhost:9090/realms/RH-Realm/protocol/openid-connect/certs
 
   mail:
     host: smtp.gmail.com
