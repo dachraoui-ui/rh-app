@@ -387,6 +387,13 @@ public class KeycloakUserService {
                 .map(role -> role.getName())
                 .collect(Collectors.toList());
     }
+    // get the non-archived users
+    public List<UserDto> getNonArchivedUsers() {
+        return keycloak.realm(realm).users().list().stream()
+                .map(UserMapper::fromUserRepresentation)
+                .filter(user -> !Boolean.TRUE.equals(user.getIsArchived()))
+                .collect(Collectors.toList());
+    }
 
 
 

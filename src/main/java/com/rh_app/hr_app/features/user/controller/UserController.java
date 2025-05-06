@@ -144,6 +144,13 @@ public class UserController {
         List<String> allRoles = userService.listAllAvailableRoles();
         return ResponseEntity.ok(allRoles);
     }
+    // Endpoint to get non-archived users
+    @PreAuthorize("hasAnyRole('DRH','GRH')")
+    @GetMapping("/non-archived")
+    public ResponseEntity<List<UserDto>> getNonArchivedUsers() {
+        List<UserDto> nonArchivedUsers = userService.getNonArchivedUsers();
+        return ResponseEntity.ok(nonArchivedUsers);
+    }
 
 
 }
