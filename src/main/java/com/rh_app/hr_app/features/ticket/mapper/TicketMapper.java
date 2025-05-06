@@ -34,7 +34,7 @@ public final class TicketMapper {
                         ? t.getDepartment().getId() : null)
                 .createdBy(t.getCreatedBy())
                 .assignedTo(t.getAssignedTo())
-                .requestType(t.getCategory())
+                .category(t.getCategory())
 
                 // workflow
                 .priority(mapPriorityToEnum(t.getPriority()))
@@ -69,8 +69,8 @@ public final class TicketMapper {
         Ticket t = new Ticket();
 
         /* ── classification / content ───────────────────────────── */
-        t.setCategory(dto.getCategory());
-        t.setDescription(dto.getDescription());
+        t.setCategory(dto.category());
+        t.setDescription(dto.description());
         t.setDepartment(department);             // already looked-up by caller
 
         /* ── workflow defaults ──────────────────────────────────── */
@@ -80,8 +80,8 @@ public final class TicketMapper {
         t.setEscalationLevel(0);                 // 0 = no escalation yet
 
         // default to MEDIUM if caller omitted priority
-        TicketPriority pr = dto.getPriority() != null
-                ? dto.getPriority()
+        TicketPriority pr = dto.priority() != null
+                ? dto.priority()
                 : TicketPriority.MEDIUM;
         t.setPriority(mapPriorityToShort(pr));
 

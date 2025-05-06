@@ -5,17 +5,14 @@ import com.rh_app.hr_app.core.enums.ticket_enums.HrRequestCategory;
 import com.rh_app.hr_app.core.enums.ticket_enums.TicketPriority;
 import jakarta.validation.constraints.*;
 
-import lombok.Value;
 
-@Value
-public class TicketCreateDto {
 
-    @NotNull Long             departmentId;
+/**
+ * @param category formerly requestType
+ * @param priority null ⇒ NORMAL   (handled in service)
+ */
 
-    @NotNull HrRequestCategory category;       // formerly requestType
+public record TicketCreateDto(@NotNull Long departmentId, @NotNull HrRequestCategory category,
+                              @NotBlank @Size(max = 4000) String description, TicketPriority priority) {
 
-    @NotBlank @Size(max = 4000)
-    String description;
-
-    TicketPriority priority;   // null ⇒ NORMAL   (handled in service)
 }

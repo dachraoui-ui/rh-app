@@ -1,20 +1,24 @@
+/* src/main/java/com/rh_app/hr_app/features/ticket/controller/TicketController.java */
 package com.rh_app.hr_app.features.ticket.controller;
 
-import com.rh_app.hr_app.core.enums.ticket_enums.TicketStatus;
-import com.rh_app.hr_app.features.ticket.dto.TicketDto;
+import com.rh_app.hr_app.features.ticket.dto.*;
+import com.rh_app.hr_app.features.ticket.model.TicketAttachment;
 import com.rh_app.hr_app.features.ticket.service.TicketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-
-
+import java.security.Principal;
+import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -23,133 +27,151 @@ public class TicketController {
 
     private final TicketService service;
 
-    /* ─────────────────────────────
-       1️⃣  EMPLOYEE or INTERN ▸ create
-       ───────────────────────────── */
-    @PostMapping
-    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','SUPPORT','MANAGER')")
-    @ResponseStatus(HttpStatus.CREATED)
-    public TicketDto create(@Valid @RequestBody TicketDto dto,
-                            @AuthenticationPrincipal Jwt jwt) {
+    /* ╔════════════════════════════════════════════════════╗
+       ║ 1.  CREATE  – any authenticated employee           ║
+       ╚════════════════════════════════════════════════════╝ */
+    @PostMapping(consumes = "multipart/form-data")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<TicketDto> create(
+            @RequestPart("payload") @Valid TicketCreateDto payload,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            Principal principal) {
 
-        String username = jwt.getClaim("preferred_username");
-        return service.create(dto, username);
+        TicketDto dto = service.createTicket(
+                principal.getName(),     // Keycloak user-id (sub)
+                payload,
+                files);
+        return ResponseEntity.ok(dto);
     }
-
-    /* ─────────────────────────────
-       2️⃣  EMPLOYEE or INTERN ▸ my tickets
-       ───────────────────────────── */
-    @GetMapping("/my")
-    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','SUPPORT','MANAGER')")
-    public Page<TicketDto> myTickets(Pageable pageable,
-                                     @AuthenticationPrincipal Jwt jwt) {
-
-        String username = jwt.getClaim("preferred_username");
-        return service.listMine(username, pageable);
-    }
-
-    /* ─────────────────────────────
-       3️⃣  GRH / DRH ▸ assigned
-       ───────────────────────────── */
-    @GetMapping("/assigned")
-    @PreAuthorize("hasAnyRole('GRH','DRH')")
-    public Page<TicketDto> assignedToMe(Pageable pageable,
-                                        @AuthenticationPrincipal Jwt jwt) {
-
-        String username = jwt.getClaim("preferred_username");
-        return service.listAssigned(username, pageable);
-    }
-
-    /* ─────────────────────────────
-   4️⃣  ALL ROLES ▸ get by id
-   ───────────────────────────── */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','GRH','DRH')")
-    public TicketDto get(@PathVariable Long id,
-                         @AuthenticationPrincipal Jwt jwt) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<TicketDto> getById(@PathVariable Long id) {
+        TicketDto dto = service.findById(id);
+        return ResponseEntity.ok(dto);
+    }
 
-        TicketDto ticket   = service.findById(id);
-        String    username = jwt.getClaim("preferred_username");
+    /* ╔════════════════════════════════════════════════════╗
+       ║ 2.  UPDATE  – GRH/Manager/Support                  ║
+       ╚════════════════════════════════════════════════════╝ */
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('GRH','DRH','MANAGER','SUPPORT')")
+    public ResponseEntity<TicketDto> update(
+            @PathVariable Long id,
+            @RequestBody @Valid TicketUpdateDto upd,
+            Authentication auth) {
 
-        // ───── pull authorities from the SecurityContext ─────
-        var auths = org.springframework.security.core.context.SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getAuthorities();
-
-        boolean isDrh         = auths.stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_DRH"));
-        boolean isGrh         = auths.stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_GRH"));
-        boolean isEmpOrIntern = auths.stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_EMPLOYEE")
-                        || a.getAuthority().equals("ROLE_INTERN"));
-
-        if (isDrh) return ticket;                                    // DRH sees everything
-        if (isEmpOrIntern && ticket.getCreatedBy().equals(username)) // owner
-            return ticket;
-        if (isGrh && username.equals(ticket.getAssignedTo()))        // handler
-            return ticket;
-
-        throw new org.springframework.web.server.ResponseStatusException(
-                HttpStatus.FORBIDDEN, "You are not allowed to view this ticket.");
+        TicketDto dto = service.updateTicket(
+                id,
+                upd,
+                auth.getName(),
+                hasRole(auth,"GRH") || hasRole(auth,"DRH"),   // ← privilege flag
+                hasRole(auth,"MANAGER"),
+                hasRole(auth,"SUPPORT")
+        );
+        return ResponseEntity.ok(dto);
     }
 
 
+    /* ╔════════════════════════════════════════════════════╗
+       ║ 3.  REOPEN  – creator only                         ║
+       ╚════════════════════════════════════════════════════╝ */
+    @PostMapping("/{id}/reopen")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<TicketDto> reopen(@PathVariable Long id,
+                                            Principal principal) {
+
+        TicketDto dto = service.reopen(id, principal.getName());
+        return ResponseEntity.ok(dto);
+    }
+    /* 1️⃣  Employee – “My tickets” */
+    @GetMapping("/my")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Page<TicketDto>> myTickets(Principal principal,
+                                                     Pageable pageable) {
+        return ResponseEntity.ok(
+                service.findMyTickets(principal.getName(), pageable));
+    }
+
+    /* 2️⃣ Assignee – “Tickets assigned to me” */
+    @GetMapping("/assigned")
+    @PreAuthorize("hasAnyRole('SUPPORT','MANAGER','GRH','DRH')")
+    public ResponseEntity<Page<TicketDto>> assigned(Authentication auth,
+                                                    Pageable pageable) {
+        return ResponseEntity.ok(
+                service.findAssignedToMe(auth.getName(), pageable));
+    }
+
+    /* 3️⃣ GRH / DRH – list all (optional ?status=CLOSED …) */
     @GetMapping
     @PreAuthorize("hasAnyRole('GRH','DRH')")
-    public Page<TicketDto> allTickets(Pageable pageable) {
-        return service.listAll(pageable);
+    public ResponseEntity<Page<TicketDto>> all(@RequestParam(required = false) String status,
+                                               Pageable pageable) {
+        return ResponseEntity.ok(
+                service.findAllTickets(status, pageable));
     }
-    /* ===========================================
-   5 bis)  GRH / DRH ▸  quick-resolve ticket
-   =========================================== */
-    @PostMapping("/{id}/resolve")
+    /**
+     * Download a ticket attachment
+     */
+    @GetMapping("/{ticketId}/attachments/{attachmentId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<byte[]> downloadAttachment(
+            @PathVariable Long ticketId,
+            @PathVariable Long attachmentId) {
+
+        TicketAttachment attachment = service.getAttachmentForDownload(ticketId, attachmentId);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + attachment.getOriginalName() + "\"")
+                .contentType(MediaType.parseMediaType(attachment.getMimeType()))
+                .body(attachment.getData());
+    }
+    /**
+     * Get the employee's ticket count for the current month
+     * Used to show the remaining quota in the UI
+     */
+    @GetMapping("/my/monthly-count")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Long> getMyMonthlyTicketCount(Principal principal) {
+        long count = service.getUserMonthlyTicketCount(principal.getName());
+        return ResponseEntity.ok(count);
+    }
+
+
+    /* ╔════════════════════════════════════════════════════╗
+       ║ 4.  OPTIONAL KPI ENDPOINTS (GRH / DRH)             ║
+       ╚════════════════════════════════════════════════════╝ */
+    @GetMapping("/kpi/avg-resolution/department/{deptId}")
     @PreAuthorize("hasAnyRole('GRH','DRH')")
-    @ResponseStatus(HttpStatus.OK)
-    public TicketDto resolve(@PathVariable Long id,
-                             @AuthenticationPrincipal Jwt jwt) {
-
-        String editor = jwt.getClaim("preferred_username");
-        return service.resolve(id, editor);
+    public double avgResDept(@PathVariable Long deptId) {
+        return service.avgResolutionHours(deptId);
     }
 
-
-    /* ─────────────────────────────
-       5️⃣  GRH / DRH ▸ workflow patch
-       ───────────────────────────── */
-    @PatchMapping("/{id}/workflow")
+    @GetMapping("/kpi/avg-resolution/user/{userId}")
     @PreAuthorize("hasAnyRole('GRH','DRH')")
-    public TicketDto workflow(@PathVariable Long id,
-                              @RequestBody TicketDto patch,
-                              @AuthenticationPrincipal Jwt jwt) {
-
-        String editor = jwt.getClaim("preferred_username");
-        return service.applyWorkflowPatch(id, patch, editor);
+    public double avgResUser(@PathVariable String userId) {
+        return service.avgResolutionHoursForUser(userId);
     }
 
-    /* ─────────────────────────────
-       6️⃣  DRH only ▸ delete
-       ───────────────────────────── */
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('DRH')")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
-    }
-
-    /* ─────────────────────────────
-       7️⃣  KPI endpoints (GRH / DRH)
-       ───────────────────────────── */
-    @GetMapping("/count/open")
+    @GetMapping("/kpi/closed-by-user/{userId}")
     @PreAuthorize("hasAnyRole('GRH','DRH')")
-    public long openCount() {
-        return service.countByStatus(TicketStatus.OPEN);
+    public long closedByUser(@PathVariable String userId,
+                             @RequestParam Instant from,
+                             @RequestParam Instant to) {
+        return service.ticketsClosedByUser(userId, from, to);
     }
 
-    @GetMapping("/count/open/high")
+    @GetMapping("/kpi/reopened/department/{deptId}")
     @PreAuthorize("hasAnyRole('GRH','DRH')")
-    public long highUrgencyOpen() {
-        return service.countHighUrgencyOpen();
+    public long reopenedDept(@PathVariable Long deptId) {
+        return service.reopenedInDepartment(deptId);
+    }
+
+    /* ──────────────────────────────────────────────────────
+       utility
+       ────────────────────────────────────────────────────── */
+    private static boolean hasRole(Authentication auth, String role) {
+        return auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
     }
 }

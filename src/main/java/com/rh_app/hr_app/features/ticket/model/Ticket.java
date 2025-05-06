@@ -42,7 +42,7 @@ public class Ticket {
     /* ---- classification ---- */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 40)
-    private HrRequestCategory category;   // replaces title
+    private HrRequestCategory category;
 
     /* ---- content ---- */
     @Column(nullable = false, length = 4_000)

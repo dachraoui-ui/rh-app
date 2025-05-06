@@ -14,5 +14,4 @@ public class TicketUpdateDto {
     TicketPriority priority;
     String         assignedTo;
 
-    Boolean        archived;   // let GRH archive via the same DTO (optional)
 }

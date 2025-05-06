@@ -31,8 +31,9 @@ public class TicketAttachment {
     private long size;                 // bytes
 
     @Lob
+    @Basic(fetch = FetchType.LAZY)  // Add this to load BLOBs only when accessed
     @Column(nullable = false, name = "data")
-    private byte[] data;               // stored as PostgreSQL BYTEA
+    private byte[] data;               // stored as PostgresSQL BYTEA
 
     /* ---- audit ---- */
     @Column(nullable = false, length = 50)

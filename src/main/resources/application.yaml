@@ -7,6 +7,9 @@ spring:
     username: admin
     password: admin
     driver-class-name: org.postgresql.Driver
+    hikari:
+      auto-commit: false
+
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -15,6 +18,8 @@ spring:
     show-sql: true
     properties:
       hibernate:
+        connection:
+          provider_disables_autocommit: true
         format_sql: true
         default_schema: app  # tell Hibernate that NEW tables it generates belong in `app`
 
@@ -65,10 +70,8 @@ server:
 #    name: logs/hr-app.log  # This creates a log file
 
 
-# ticket time to resolve
-tickets:
-  sla:
-    overdue-hours: 72     # escalate after 3 day
+
+
 
 # ✅ Keycloak Admin Client (for managing users/roles via Admin API)
 keycloak:

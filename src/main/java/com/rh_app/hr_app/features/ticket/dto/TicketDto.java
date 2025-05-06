@@ -17,7 +17,7 @@ public class TicketDto {
     Long           departmentId;
     String         createdBy;       // Keycloak user-id of employee
     String         assignedTo;      // null = unassigned
-    HrRequestCategory  requestType;     // e.g. SALARY_CERTIFICATE, ...
+    HrRequestCategory  category;     // e.g. SALARY_CERTIFICATE, ...
 
     /* workflow */
     TicketPriority priority;
