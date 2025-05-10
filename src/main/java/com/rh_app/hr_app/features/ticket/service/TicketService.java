@@ -10,6 +10,10 @@ import com.rh_app.hr_app.features.ticket.model.Ticket;
 import com.rh_app.hr_app.features.ticket.model.TicketAttachment;
 import com.rh_app.hr_app.features.ticket.repository.TicketRepository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.sql.Timestamp;
 import java.time.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -32,6 +38,12 @@ public class TicketService {
 
     private final TicketRepository     ticketRepo;
     private final DepartmentRepository deptRepo;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @PersistenceContext
+    private EntityManager em;
+
 
     /* ────────────────────────────────────────────────────────────────
        1) EMPLOYEE — create ticket (≤ 5 / month)
@@ -192,6 +204,63 @@ public class TicketService {
         });
     }
     /* ────────────────────────────────────────────────────────────────
+   TICKET STATUS MANAGEMENT
+   ──────────────────────────────────────────────────────────────── */
+    @Transactional
+    public TicketDto changeTicketStatus(Long id,
+                                        TicketStatus newStatus,
+                                        String currentUserId,
+                                        boolean isGrh,
+                                        boolean isManager,
+                                        boolean isSupport) {
+
+        Ticket ticket = ticketRepo.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Ticket not found"));
+
+        // Check if user has permission to change to this status
+        if (!isGrh) {
+            // Only GRH/DRH can close or archive tickets
+            if (newStatus == TicketStatus.CLOSED || newStatus == TicketStatus.ARCHIVED) {
+                throw new SecurityException("Only GRH or DRH may close or archive tickets");
+            }
+
+            // For other statuses, user must be the assignee
+            boolean isAssignee = currentUserId.equals(ticket.getAssignedTo());
+            if (!isAssignee) {
+                throw new SecurityException("Not allowed to modify this ticket");
+            }
+        }
+
+        // Update the ticket status
+        ticket.setStatus(mapStatusToString(newStatus));
+
+        // Additional logic specific to each status
+        switch (newStatus) {
+            case RESOLVED:
+                ticket.setResolvedAt(Instant.now());
+                break;
+            case CLOSED:
+                // If it wasn't already resolved, set resolved timestamp
+                if (ticket.getResolvedAt() == null) {
+                    ticket.setResolvedAt(Instant.now());
+                }
+                break;
+            case ARCHIVED:
+                // Ensure the ticket is closed before archiving
+                if (!ticket.getStatus().equals(mapStatusToString(TicketStatus.CLOSED))) {
+                    throw new IllegalStateException("Ticket must be closed before archiving");
+                }
+                break;
+        }
+
+        return TicketMapper.toDto(ticket);
+    }
+
+    // Helper method for mapping TicketStatus enum to string
+    private static String mapStatusToString(TicketStatus status) {
+        return status.name();
+    }
+    /* ────────────────────────────────────────────────────────────────
        5)  LISTING HELPERS
        ──────────────────────────────────────────────────────────────── */
 
@@ -260,4 +329,128 @@ public class TicketService {
     public long reopenedInDepartment(Long deptId) {
         return ticketRepo.reopenedCountForDepartment(deptId);
     }
+
+
+    /**
+     * Creates a quick test for ticket escalation
+     * @return A message indicating the result of the test
+     */
+    @Transactional
+    public String quickEscalationTest() {
+        // 1. Find or create a department
+        Department dept;
+        try {
+            dept = deptRepo.findAll().stream().findFirst().orElseThrow();
+        } catch (Exception e) {
+            // Create a department if none exists
+            dept = new Department();
+            dept.setName("Test Department " + System.currentTimeMillis());
+            dept.setDescription("Test Department for Escalation Test");
+            dept.setManagerUserId("test-manager-id");
+            dept.setSupportUserIds(new HashSet<>());
+            dept.addSupportUser("test-support-id");
+            dept = deptRepo.save(dept);
+        }
+
+        // 2. Create a test ticket
+        Ticket testTicket = new Ticket();
+        testTicket.setStatus("OPEN");
+        testTicket.setEscalationLevel(0);
+        testTicket.setCreatedBy("test-user");
+        testTicket.setDescription("Quick Escalation Test");
+        testTicket.setCategory(HrRequestCategory.PAYSLIP_QUESTION);
+        testTicket.setDepartment(dept);
+
+        // 3. Save ticket
+        Ticket saved = ticketRepo.save(testTicket);
+        Long ticketId = saved.getId();
+
+        // 4. Use JdbcTemplate to update the timestamp directly
+        jdbcTemplate.update(
+                "UPDATE app.ticket SET created_at = ? WHERE id = ?",
+                Timestamp.from(Instant.now().minus(Duration.ofHours(49))),
+                ticketId
+        );
+
+        // 5. Clear JPA's first-level cache
+        em.clear();
+
+        // 6. Manually escalate
+        Ticket refreshed = ticketRepo.findById(ticketId).orElseThrow();
+        refreshed.setAssignedTo(dept.getManagerUserId());
+        refreshed.setEscalationLevel(1);
+        ticketRepo.save(refreshed);
+
+        return String.format(
+                "Escalation test successful! Ticket #%d escalated to Manager %s",
+                ticketId, dept.getManagerUserId()
+        );
+    }
+
+    @Transactional
+    public String quickDrhEscalationTest() {
+        // 1. Find or create a department
+        Department dept;
+        try {
+            dept = deptRepo.findAll().stream().findFirst().orElseThrow();
+        } catch (Exception e) {
+            // Create a department if none exists
+            dept = new Department();
+            dept.setName("Test Department " + System.currentTimeMillis());
+            dept.setDescription("Test Department for Escalation Test");
+            dept.setManagerUserId("test-manager-id");
+            dept.setSupportUserIds(new HashSet<>());
+            dept.addSupportUser("test-support-id");
+            dept = deptRepo.save(dept);
+        }
+
+        // 2. Create a test ticket
+        Ticket testTicket = new Ticket();
+        testTicket.setStatus("OPEN");
+        testTicket.setEscalationLevel(1); // Already at level 1 (manager escalation)
+        testTicket.setCreatedBy("test-user");
+        testTicket.setDescription("DRH Escalation Test");
+        testTicket.setCategory(HrRequestCategory.PAYSLIP_QUESTION);
+        testTicket.setDepartment(dept);
+        testTicket.setAssignedTo(dept.getManagerUserId()); // Already assigned to manager
+
+        // 3. Save ticket
+        Ticket saved = ticketRepo.save(testTicket);
+        Long ticketId = saved.getId();
+
+        // 4. Use JdbcTemplate to update the timestamp directly (72+ hours ago)
+        jdbcTemplate.update(
+                "UPDATE app.ticket SET created_at = ? WHERE id = ?",
+                Timestamp.from(Instant.now().minus(Duration.ofHours(73))),
+                ticketId
+        );
+
+        // 5. Clear JPA's first-level cache
+        em.clear();
+
+        // 6. Verify if it would be picked up by the escalation query
+        List<Ticket> candidates = ticketRepo.findEscalatable(1, Instant.now().minus(Duration.ofHours(72)));
+        boolean foundForEscalation = candidates.stream()
+                .anyMatch(t -> t.getId().equals(ticketId));
+
+        // 7. Manually escalate to DRH
+        Ticket refreshed = ticketRepo.findById(ticketId).orElseThrow();
+        String drhUserId = "drh-user-id"; // You might want to use a real DRH user ID if available
+        refreshed.setAssignedTo(drhUserId);
+        refreshed.setEscalationLevel(2);
+        ticketRepo.save(refreshed);
+
+        return String.format(
+                "DRH Escalation test successful!\n" +
+                        "- Created ticket #%d (initially at level 1)\n" +
+                        "- Backdated to %s (73 hours ago)\n" +
+                        "- Found by escalation query: %s\n" +
+                        "- Manually escalated to level 2 (DRH: %s)",
+                ticketId,
+                Instant.now().minus(Duration.ofHours(73)),
+                foundForEscalation ? "YES" : "NO",
+                drhUserId
+        );
+    }
+
 }

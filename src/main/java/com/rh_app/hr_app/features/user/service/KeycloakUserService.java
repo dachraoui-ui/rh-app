@@ -34,10 +34,37 @@ public class KeycloakUserService {
     private static final Logger log = LoggerFactory.getLogger(KeycloakUserService.class);
 
 
+    private boolean departmentHasManager(String departmentId) {
+        if (departmentId == null || departmentId.isEmpty()) {
+            return false;
+        }
+
+        // Get all users in the department
+        List<UserDto> departmentUsers = getUsersByDepartment(departmentId);
+
+        // Check if any of them is a manager
+        return departmentUsers.stream()
+                .anyMatch(user -> "MANAGER".equalsIgnoreCase(user.getRole()));
+    }
+
     //  Create User
     public String createUser(UserDto dto) {
         // Use the mapper to include all custom attributes
+        if (dto.getDepartmentId() != null &&
+                dto.getRole() != null &&
+                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
+                departmentHasManager(dto.getDepartmentId())) {
+
+            return "Error: Cannot assign MANAGER role - department already has a manager";
+        }
         UserRepresentation user = UserMapper.toUserRepresentation(dto);
+        if (dto.getDepartmentId() != null &&
+                dto.getRole() != null &&
+                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
+                departmentHasManager(dto.getDepartmentId())) {
+
+            return "Error: Cannot assign MANAGER role - department already has a manager";
+        }
 
         // Enable user if isActive is true (or null)
         boolean enabled = (dto.getIsActive() == null) || dto.getIsActive();
@@ -152,6 +179,19 @@ public class KeycloakUserService {
 
     //  Update User Profile
     public String updateUserProfile(String userId, UserDto dto) {
+        Optional<UserDto> existingUser = getUserById(userId);
+
+        // Check if trying to assign MANAGER role to a department that already has one
+        if (existingUser.isPresent() &&
+                dto.getRole() != null &&
+                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
+                !dto.getRole().equalsIgnoreCase(existingUser.get().getRole()) && // Role is changing to MANAGER
+                dto.getDepartmentId() != null &&
+                departmentHasManager(dto.getDepartmentId())) {
+
+            return "Error: Cannot assign MANAGER role - department already has a manager";
+        }
+
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
 
         // Update basic information
@@ -223,6 +263,9 @@ public class KeycloakUserService {
         }
         if (dto.getIsArchived() != null) {
             user.singleAttribute("isArchived", String.valueOf(dto.getIsArchived()));
+        }
+        if (dto.getCurrency() != null) {
+            user.singleAttribute("currency", dto.getCurrency());
         }
 
         // Set enable/disable status

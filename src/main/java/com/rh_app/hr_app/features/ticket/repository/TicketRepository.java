@@ -2,6 +2,8 @@
 package com.rh_app.hr_app.features.ticket.repository;
 
 import com.rh_app.hr_app.features.ticket.model.Ticket;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -127,4 +129,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
           and t.reopenCount   > 0
        """)
     long reopenedCountForDepartment(@Param("deptId") Long departmentId);
+
+
 }

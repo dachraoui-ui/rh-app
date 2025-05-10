@@ -1,9 +1,14 @@
-/* src/main/java/com/rh_app/hr_app/features/ticket/controller/TicketController.java */
+
 package com.rh_app.hr_app.features.ticket.controller;
 
+
+import com.rh_app.hr_app.core.enums.ticket_enums.TicketStatus;
 import com.rh_app.hr_app.features.ticket.dto.*;
+
 import com.rh_app.hr_app.features.ticket.model.TicketAttachment;
+
 import com.rh_app.hr_app.features.ticket.service.TicketService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,7 +22,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+
 import java.time.Instant;
+
 import java.util.List;
 
 @RestController
@@ -26,6 +33,7 @@ import java.util.List;
 public class TicketController {
 
     private final TicketService service;
+
 
     /* ╔════════════════════════════════════════════════════╗
        ║ 1.  CREATE  – any authenticated employee           ║
@@ -136,6 +144,60 @@ public class TicketController {
         long count = service.getUserMonthlyTicketCount(principal.getName());
         return ResponseEntity.ok(count);
     }
+    /* ╔════════════════════════════════════════════════════╗
+   ║ TICKET STATUS MANAGEMENT ENDPOINTS                 ║
+   ╚════════════════════════════════════════════════════╝ */
+
+    @PostMapping("/{id}/resolve")
+    @PreAuthorize("hasAnyRole('SUPPORT','MANAGER','GRH','DRH')")
+    public ResponseEntity<TicketDto> resolveTicket(
+            @PathVariable Long id,
+            Authentication auth) {
+
+        TicketDto dto = service.changeTicketStatus(
+                id,
+                TicketStatus.RESOLVED,
+                auth.getName(),
+                hasRole(auth,"GRH") || hasRole(auth,"DRH"),
+                hasRole(auth,"MANAGER"),
+                hasRole(auth,"SUPPORT")
+        );
+        return ResponseEntity.ok(dto);
+    }
+
+    @PostMapping("/{id}/close")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<TicketDto> closeTicket(
+            @PathVariable Long id,
+            Authentication auth) {
+
+        TicketDto dto = service.changeTicketStatus(
+                id,
+                TicketStatus.CLOSED,
+                auth.getName(),
+                true, // Only GRH/DRH can access this endpoint
+                false,
+                false
+        );
+        return ResponseEntity.ok(dto);
+    }
+
+    @PostMapping("/{id}/archive")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<TicketDto> archiveTicket(
+            @PathVariable Long id,
+            Authentication auth) {
+
+        TicketDto dto = service.changeTicketStatus(
+                id,
+                TicketStatus.ARCHIVED,
+                auth.getName(),
+                true, // Only GRH/DRH can access this endpoint
+                false,
+                false
+        );
+        return ResponseEntity.ok(dto);
+    }
 
 
     /* ╔════════════════════════════════════════════════════╗
@@ -173,5 +235,21 @@ public class TicketController {
     private static boolean hasRole(Authentication auth, String role) {
         return auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
+    }
+
+    /* ╔════════════════════════════════════════════════════╗
+       ║   TESTING ENDPOINTS (for dev/test purposes only)   ║
+       ╚════════════════════════════════════════════════════╝ */
+    @PostMapping("/quick-escalation-test")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<String> quickEscalationTest() {
+        String result = service.quickEscalationTest();
+        return ResponseEntity.ok(result);
+    }
+    @PostMapping("/quick-drh-escalation-test")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<String> quickDrhEscalationTest() {
+        String result = service.quickDrhEscalationTest();
+        return ResponseEntity.ok(result);
     }
 }
