@@ -1,7 +1,7 @@
 package com.rh_app.hr_app.features.employee.model;
 
 import com.rh_app.hr_app.features.department.model.Department;
-import com.rh_app.hr_app.features.meeting.model.EmployeeReunion;
+
 
 import com.rh_app.hr_app.features.task.model.DateAffectation;
 import jakarta.persistence.*;
@@ -45,9 +45,6 @@ public class Employee {
     private Department department;
 
 
-
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
-    private List<EmployeeReunion> employeeReunions;
 
     // New Relationship: Employee is assigned to tasks with start & end dates
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
