@@ -5,10 +5,12 @@ import com.rh_app.hr_app.features.calendar.event.dto.EventDto;
 import com.rh_app.hr_app.features.calendar.event.model.Event;
 import com.rh_app.hr_app.features.calendar.event.model.EventNotification;
 import com.rh_app.hr_app.features.calendar.event.repository.EventNotificationRepository;
+import com.rh_app.hr_app.features.calendar.event.repository.EventRepository;
 import com.rh_app.hr_app.features.calendar.event.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +28,7 @@ public class EventController {
 
     private final EventService eventService;
     private final EventNotificationRepository notificationRepository;
+    private final EventRepository eventRepository;
     private final MailService mailService;
     private static final Logger log = LoggerFactory.getLogger(EventController.class);
 
@@ -39,105 +42,6 @@ public class EventController {
         return ResponseEntity.ok(eventService.getAllEvents());
     }
 
-    @GetMapping("/debug/pending-notifications")
-    public ResponseEntity<List<EventNotification>> debugPendingNotifications() {
-        return ResponseEntity.ok(eventService.getPendingNotifications());
-    }
-
-    @GetMapping("/debug/all-notifications")
-    public ResponseEntity<List<EventNotification>> debugAllNotifications() {
-        return ResponseEntity.ok(eventService.getAllNotifications());
-    }
-
-    @GetMapping("/debug/time-info")
-    public ResponseEntity<Map<String, Object>> getTimeInfo() {
-        Map<String, Object> timeInfo = new HashMap<>();
-        LocalDateTime now = LocalDateTime.now();
-
-        timeInfo.put("currentTime", now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        timeInfo.put("systemZone", ZoneId.systemDefault().toString());
-
-        // Get notification with ID 49
-        EventNotification notification = notificationRepository.findById(49L).orElse(null);
-        if (notification != null) {
-            Map<String, Object> notifInfo = new HashMap<>();
-            notifInfo.put("id", notification.getId());
-            notifInfo.put("scheduledTime", notification.getScheduledTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-            notifInfo.put("isBeforeNow", notification.getScheduledTime().isBefore(now));
-            notifInfo.put("sent", notification.isSent());
-
-            // Calculate time difference
-            long minutesDiff = java.time.Duration.between(notification.getScheduledTime(), now).toMinutes();
-            notifInfo.put("minutesPast", minutesDiff);
-
-            timeInfo.put("notification", notifInfo);
-        }
-
-        return ResponseEntity.ok(timeInfo);
-    }
-
-    @PostMapping("/debug/process/{id}")
-    public ResponseEntity<String> processNotification(@PathVariable Long id) {
-        try {
-            EventNotification notification = notificationRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Notification not found"));
-
-            Event event = notification.getEvent();
-
-            // Explicitly log the time comparison
-            LocalDateTime now = LocalDateTime.now();
-            log.info("MANUAL PROCESSING: Notification time: {}, Current time: {}, Is before: {}",
-                    notification.getScheduledTime(), now,
-                    notification.getScheduledTime().isBefore(now));
-
-            // Send emails
-            if (event.getGuests() != null && !event.getGuests().isEmpty()) {
-                String[] emails = event.getGuests().split(",");
-                for (String email : emails) {
-                    mailService.sendEventNotification(event, email.trim());
-                    log.info("Email sent to {}", email.trim());
-                }
-            }
-
-            // Mark as sent
-            notification.setSent(true);
-            notification.setSentAt(LocalDateTime.now());
-            notificationRepository.save(notification);
-
-            return ResponseEntity.ok("Notification processed successfully");
-        } catch (Exception e) {
-            log.error("Error processing notification: {}", e.getMessage(), e);
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
-    }
-
-    @PostMapping("/debug/update-time/{id}")
-    public ResponseEntity<String> updateNotificationTime(@PathVariable Long id) {
-        try {
-            EventNotification notification = notificationRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Notification not found"));
-
-            LocalDateTime tenMinutesAgo = LocalDateTime.now().minusMinutes(10);
-            notification.setScheduledTime(tenMinutesAgo);
-            notification = notificationRepository.save(notification);
-
-            return ResponseEntity.ok("Notification time updated to: " + tenMinutesAgo);
-        } catch (Exception e) {
-            log.error("Error updating notification: {}", e.getMessage(), e);
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
-    }
-
-    @PostMapping("/debug/run-scheduler")
-    public ResponseEntity<String> runScheduler() {
-        try {
-            eventService.processNotificationsBatch();
-            return ResponseEntity.ok("Scheduler execution triggered manually");
-        } catch (Exception e) {
-            log.error("Error running scheduler: {}", e.getMessage(), e);
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
-    }
     @GetMapping("/{id}")
     public ResponseEntity<EventDto> getEventById(@PathVariable Long id) {
         return ResponseEntity.ok(eventService.getEventById(id));
@@ -153,4 +57,53 @@ public class EventController {
         eventService.deleteEvent(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/notify")
+    public ResponseEntity<Void> sendImmediateNotification(@PathVariable Long id) {
+        log.info("Sending immediate notification for event ID: {}", id);
+
+        try {
+            Event event = eventRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Event not found with ID: " + id));
+
+            if (event.getGuests() != null && !event.getGuests().isEmpty()) {
+                String[] emails = event.getGuests().split(",");
+                for (String email : emails) {
+                    mailService.sendEventNotification(event, email.trim());
+                    log.info("Immediate notification sent to {} for event '{}'", email.trim(), event.getTitle());
+                }
+                return ResponseEntity.ok().build();
+            } else {
+                log.warn("No guests to notify for event '{}'", event.getTitle());
+                return ResponseEntity.ok().build();
+            }
+        } catch (Exception e) {
+            log.error("Failed to send notification for event ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @DeleteMapping("/notifications/{notificationId}")
+    public ResponseEntity<Void> deleteNotification(@PathVariable Long notificationId) {
+        log.info("Deleting notification with ID: {}", notificationId);
+
+        try {
+            EventNotification notification = notificationRepository.findById(notificationId)
+                    .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + notificationId));
+
+            // Remove from parent event's collection to maintain relationship integrity
+            Event parentEvent = notification.getEvent();
+            parentEvent.getNotifications().remove(notification);
+
+            // Delete the notification
+            notificationRepository.delete(notification);
+
+            log.info("Notification with ID: {} deleted successfully", notificationId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Failed to delete notification with ID {}: {}", notificationId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }
