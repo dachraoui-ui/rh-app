@@ -1,6 +1,8 @@
 package com.rh_app.hr_app.features.user.service;
 
 import com.rh_app.hr_app.core.email.MailService;
+import com.rh_app.hr_app.features.department.model.Department;
+import com.rh_app.hr_app.features.department.repository.DepartmentRepository;
 import com.rh_app.hr_app.features.user.dto.SessionDto;
 import com.rh_app.hr_app.features.user.dto.UserDto;
 import com.rh_app.hr_app.features.user.mapper.UserMapper;
@@ -27,6 +29,9 @@ public class KeycloakUserService {
 
     private final Keycloak keycloak;
     private final MailService mailService;
+    private final DepartmentRepository departmentRepository;
+
+
 
     @Value("${keycloak.admin.realm}")
     private String realm;
@@ -46,6 +51,43 @@ public class KeycloakUserService {
         return departmentUsers.stream()
                 .anyMatch(user -> "MANAGER".equalsIgnoreCase(user.getRole()));
     }
+    /**
+     * Checks if a department already has the maximum number of support users (3)
+     * @param departmentId The department ID to check
+     * @return true if the department already has 3 support users, false otherwise
+     */
+    private boolean departmentHasMaxSupportUsers(String departmentId) {
+        if (departmentId == null || departmentId.isEmpty()) {
+            return false;
+        }
+
+        // Try to get the department from the repository first
+        try {
+            Long deptId = Long.parseLong(departmentId);
+            Optional<Department> department = departmentRepository.findById(deptId);
+
+            if (department.isPresent()) {
+                // Direct check using the department entity
+                return department.get().getSupportUserIds().size() >= 3;
+            }
+        } catch (NumberFormatException e) {
+            log.warn("Invalid department ID format: {}", departmentId);
+        } catch (Exception e) {
+            log.error("Error checking department support users count: {}", e.getMessage());
+        }
+
+        // Fallback: Get all users in the department with SUPPORT role
+        List<UserDto> departmentUsers = getUsersByDepartment(departmentId);
+
+        // Count users with SUPPORT role
+        long supportUserCount = departmentUsers.stream()
+                .filter(user -> "SUPPORT".equalsIgnoreCase(user.getRole()))
+                .count();
+
+        return supportUserCount >= 3;
+    }
+
+
 
     //  Create User
     public String createUser(UserDto dto) {
@@ -57,6 +99,18 @@ public class KeycloakUserService {
 
             return "Error: Cannot assign MANAGER role - department already has a manager";
         }
+        // Check for SUPPORT role limit
+
+        if (dto.getDepartmentId() != null &&
+                dto.getRole() != null &&
+                "SUPPORT".equalsIgnoreCase(dto.getRole()) &&
+                departmentHasMaxSupportUsers(dto.getDepartmentId())) {
+
+            return "Error: Cannot assign SUPPORT role - department already has maximum number of support users (3)";
+        }
+
+
+
         UserRepresentation user = UserMapper.toUserRepresentation(dto);
         if (dto.getDepartmentId() != null &&
                 dto.getRole() != null &&
@@ -191,6 +245,17 @@ public class KeycloakUserService {
 
             return "Error: Cannot assign MANAGER role - department already has a manager";
         }
+        // Check if trying to assign SUPPORT role to a department that already has max support users
+        if (existingUser.isPresent() &&
+                dto.getRole() != null &&
+                "SUPPORT".equalsIgnoreCase(dto.getRole()) &&
+                !dto.getRole().equalsIgnoreCase(existingUser.get().getRole()) && // Role is changing to SUPPORT
+                dto.getDepartmentId() != null &&
+                departmentHasMaxSupportUsers(dto.getDepartmentId())) {
+
+            return "Error: Cannot assign SUPPORT role - department already has maximum number of support users (3)";
+        }
+
 
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
 

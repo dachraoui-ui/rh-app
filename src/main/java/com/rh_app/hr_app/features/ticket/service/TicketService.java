@@ -324,12 +324,25 @@ public class TicketService {
         return ticketRepo.countByAssignedToAndStatusAndResolvedAtBetween(
                 userId, "CLOSED", from, to);
     }
-
     // Re-opened tickets in a department
     public long reopenedInDepartment(Long deptId) {
         return ticketRepo.reopenedCountForDepartment(deptId);
     }
 
+    /**
+     * Get the escalation level of a ticket.
+     *
+     * @param id The ticket ID
+     * @return int representing the escalation level (0 = not escalated, 1 = Manager, 2 = DRH)
+     * @throws NoSuchElementException if ticket not found
+     */
+    @Transactional(readOnly = true)
+    public int getTicketEscalationLevel(Long id) {
+        Ticket ticket = ticketRepo.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Ticket not found"));
+
+        return ticket.getEscalationLevel();
+    }
 
     /**
      * Creates a quick test for ticket escalation

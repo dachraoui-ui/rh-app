@@ -117,8 +117,23 @@ public final class TicketMapper {
             entity.setAssignedTo(upd.getAssignedTo());
         }
 
-        // comment isn’t stored on Ticket itself; service layer
-        // would persist it to a TicketHistory / Comment table.
+        /* ── assignment ───────────────────────── */
+        if (upd.getAssignedTo() != null) {
+            String newAssignee = upd.getAssignedTo();
+            entity.setAssignedTo(newAssignee);
+
+            // Check if assigning to a manager or DRH
+            Department dept = entity.getDepartment();
+            if (dept != null && dept.getManagerUserId() != null &&
+                    newAssignee.equals(dept.getManagerUserId())) {
+                // If assigned to department manager, set level to 1
+                entity.setEscalationLevel(1);
+            } else if ("DRH".equals(newAssignee)) {
+                // If assigned to DRH, set level to 2
+                entity.setEscalationLevel(2);
+            }
+        }
+
     }
 
     /* ─────────────────────────────────────────────

@@ -198,6 +198,17 @@ public class TicketController {
         );
         return ResponseEntity.ok(dto);
     }
+    /**
+     * Get ticket escalation level
+     * @param id The ticket ID
+     * @return The escalation level (0 = not escalated, 1 = escalated to Manager, 2 = escalated to DRH)
+     */
+    @GetMapping("/{id}/escalation-level")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Integer> getTicketEscalationLevel(@PathVariable Long id) {
+        int escalationLevel = service.getTicketEscalationLevel(id);
+        return ResponseEntity.ok(escalationLevel);
+    }
 
 
     /* ╔════════════════════════════════════════════════════╗
@@ -252,4 +263,5 @@ public class TicketController {
         String result = service.quickDrhEscalationTest();
         return ResponseEntity.ok(result);
     }
+
 }

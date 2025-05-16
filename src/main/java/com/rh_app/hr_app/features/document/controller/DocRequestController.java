@@ -27,7 +27,7 @@ public class DocRequestController {
     /* ══ EMPLOYEE / INTERN ═══════════════════════════════════════ */
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','MANAGER','SUPPORT')")
     @ResponseStatus(HttpStatus.CREATED)
     public DocRequestDto create(@Valid @RequestBody DocRequestCreateDto dto,
                                 @AuthenticationPrincipal Jwt jwt) {
@@ -36,7 +36,7 @@ public class DocRequestController {
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','MANAGER','SUPPORT')")
     public Page<DocRequestDto> my(Pageable p,
                                   @AuthenticationPrincipal Jwt jwt) {
         String user = jwt.getClaim("preferred_username");
@@ -52,7 +52,7 @@ public class DocRequestController {
     }
 
     @GetMapping("/assigned")
-    @PreAuthorize("hasRole('GRH')")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
     public Page<DocRequestDto> assigned(Pageable p,
                                         @AuthenticationPrincipal Jwt jwt) {
         return service.listAssigned(jwt.getClaim("preferred_username"), p);

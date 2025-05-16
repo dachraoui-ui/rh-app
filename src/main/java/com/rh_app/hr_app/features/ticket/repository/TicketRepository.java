@@ -25,16 +25,7 @@ import java.util.List;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-    /* ╔══════════════╗
-       ║ 1. DASHBOARD ║
-       ╚══════════════╝ */
 
-    /** All *active* tickets (anything not ARCHIVED) for a department. */
-    List<Ticket> findByDepartmentIdAndStatusNotOrderByCreatedAtAsc(
-            Long departmentId, String statusArchived /* pass "ARCHIVED" */);
-
-    /** Tickets created by one employee – “My requests” page. */
-    List<Ticket> findByCreatedByOrderByCreatedAtDesc(String employeeId);
 
     /* ╔════════════════╗
        ║ 2. ESCALATION  ║
@@ -50,16 +41,14 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query("""
            select t
              from Ticket t
-            where t.status          = 'OPEN'
+                where (t.status = 'OPEN' or t.status = 'IN_PROGRESS')
               and t.escalationLevel = :level
               and t.createdAt      <= :threshold
            """)
     List<Ticket> findEscalatable(@Param("level") int level,
                                  @Param("threshold") Instant threshold);
 
-    /* ╔══════════════════════════════════╗
-       ║ 3. “MAX 5 TICKETS / MONTH” RULE  ║
-       ╚══════════════════════════════════╝ */
+
 
    /* ╔══════════════════════════════════╗
    ║ 5. GET MONTHLY TICKET COUNT      ║
