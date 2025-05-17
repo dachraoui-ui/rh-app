@@ -5,6 +5,7 @@ import com.rh_app.hr_app.features.document.dto.DocTemplateUploadDto;
 import com.rh_app.hr_app.features.document.service.DocTemplateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -99,6 +100,16 @@ public class DocTemplateController {
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
+        }
+    }
+    @GetMapping("/{id}/copy")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<DocTemplateDto> getTemplateCopy(@PathVariable Long id) {
+        try {
+            DocTemplateDto copy = service.getTemplateCopy(id);
+            return ResponseEntity.ok(copy);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 

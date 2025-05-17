@@ -588,6 +588,13 @@ public class KeycloakUserService {
         }
         return users.get(0).getId();
     }
+    // get the non-archived users
+    public List<UserDto> getNonArchivedUsers() {
+        return keycloak.realm(realm).users().list().stream()
+                .map(UserMapper::fromUserRepresentation)
+                .filter(user -> !Boolean.TRUE.equals(user.getIsArchived()))
+                .collect(Collectors.toList());
+    }
 
 //    // test all available roles
 //    public List<String> listAllAvailableRoles() {

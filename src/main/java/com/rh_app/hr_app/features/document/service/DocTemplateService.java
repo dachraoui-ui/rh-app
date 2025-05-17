@@ -160,6 +160,33 @@ public class DocTemplateService {
 
         return DocTemplateMapper.toDto(template);
     }
+    /**
+     * Creates a copy of a document template without persisting it to the database
+     *
+     * @param id The ID of the template to copy
+     * @return A DTO representing the copied template (not saved in database)
+     * @throws IllegalArgumentException if template not found
+     */
+    public DocTemplateDto getTemplateCopy(Long id) {
+        // Find the original template
+        DocumentTemplate original = tplRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Template not found"));
+
+        // Create a DTO copy directly (without saving to database)
+        return DocTemplateDto.builder()
+                .id(null) // No ID since it's not persisted
+                .folderId(original.getFolder().getId())
+                .type(original.getType())
+                .name(original.getName() + " (Copy)")
+                .originalName(original.getOriginalName())
+                .mimeType(original.getMimeType())
+                .size(original.getSize())
+                .version(original.getVersion())
+                .active(original.isActive())
+                .uploadedBy(original.getUploadedBy())
+                .createdAt(null) // No creation timestamp yet
+                .build();
+    }
 
     /* ---------- KPI helpers ---------- */
     public long countActive()                       { return tplRepo.countByActiveTrue(); }

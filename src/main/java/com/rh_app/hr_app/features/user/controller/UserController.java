@@ -140,6 +140,13 @@ public class UserController {
         userService.kickFromSession(sessionId);
         return ResponseEntity.noContent().build(); // 204 No Content
     }
+    // Endpoint to get non-archived users
+    @PreAuthorize("hasAnyRole('DRH','GRH')")
+    @GetMapping("/non-archived")
+    public ResponseEntity<List<UserDto>> getNonArchivedUsers() {
+        List<UserDto> nonArchivedUsers = userService.getNonArchivedUsers();
+        return ResponseEntity.ok(nonArchivedUsers);
+    }
 
 
 //    // ✅ TEST endpoint: see your roles (DEBUG ONLY)
