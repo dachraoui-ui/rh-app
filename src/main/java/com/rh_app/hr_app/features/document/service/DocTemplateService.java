@@ -23,21 +23,51 @@ public class DocTemplateService {
     private final DocTemplateRepository tplRepo;
     private final DocFolderRepository   folderRepo;
 
-    /* ---------- Employee list (active only) ---------- */
-    public List<DocTemplateDto> listActiveInFolder(Long folderId) {
-        return tplRepo.findByActiveTrueAndFolderIdOrderByNameAsc(folderId)
-                .stream().map(DocTemplateMapper::toDto).toList();
-    }
     /**
-     * List all active templates across all folders, sorted by name
-     * @return List of all active document templates
+     * List active templates in folder with role-based filtering
+     * @param folderId Folder ID to list templates from
+     * @param isHrRole Whether the current user has DRH or GRH role
+     * @return Filtered list of document templates
      */
-    public List<DocTemplateDto> listAllActive() {
-        return tplRepo.findByActiveTrueOrderByNameAsc()
-                .stream()
+    public List<DocTemplateDto> listActiveInFolderWithRoleFiltering(Long folderId, boolean isHrRole) {
+        List<DocumentTemplate> templates = tplRepo.findByActiveTrueAndFolderIdOrderByNameAsc(folderId);
+
+        // If HR role, return all templates
+        if (isHrRole) {
+            return templates.stream().map(DocTemplateMapper::toDto).toList();
+        }
+
+        // Otherwise filter only allowed types
+        return templates.stream()
+                .filter(t -> t.getType() == DocTemplateType.ASSESSMENT ||
+                        t.getType() == DocTemplateType.CERTIFICATE ||
+                        t.getType() == DocTemplateType.OTHER)
                 .map(DocTemplateMapper::toDto)
                 .toList();
     }
+
+    /**
+     * List all active templates with role-based filtering
+     * @param isHrRole Whether the current user has DRH or GRH role
+     * @return Filtered list of all active document templates
+     */
+    public List<DocTemplateDto> listAllActiveWithRoleFiltering(boolean isHrRole) {
+        List<DocumentTemplate> templates = tplRepo.findByActiveTrueOrderByNameAsc();
+
+        // If HR role, return all templates
+        if (isHrRole) {
+            return templates.stream().map(DocTemplateMapper::toDto).toList();
+        }
+
+        // Otherwise filter only allowed types
+        return templates.stream()
+                .filter(t -> t.getType() == DocTemplateType.ASSESSMENT ||
+                        t.getType() == DocTemplateType.CERTIFICATE ||
+                        t.getType() == DocTemplateType.OTHER)
+                .map(DocTemplateMapper::toDto)
+                .toList();
+    }
+
 
     /* ---------- Upload by DRH ---------- */
     @Transactional
@@ -101,6 +131,61 @@ public class DocTemplateService {
         // 2. Soft delete (just mark as inactive)
         // template.setActive(false);
         // No need to call save() here since the entity is managed and will be dirty-tracked
+    }
+    /**
+     * Move a document template to a different folder
+     * @param templateId The ID of the template to move
+     * @param targetFolderId The ID of the destination folder
+     * @return Updated document template
+     * @throws IllegalArgumentException if either template or folder doesn't exist
+     */
+    @Transactional
+    public DocTemplateDto moveToFolder(Long templateId, Long targetFolderId) {
+        // Find the template and the target folder
+        DocumentTemplate template = tplRepo.findById(templateId)
+                .orElseThrow(() -> new IllegalArgumentException("Template not found with ID: " + templateId));
+
+        DocumentFolder targetFolder = folderRepo.findById(targetFolderId)
+                .orElseThrow(() -> new IllegalArgumentException("Target folder not found with ID: " + targetFolderId));
+
+        // Check if this is a no-op (moving to same folder)
+        if (template.getFolder().getId().equals(targetFolderId)) {
+            return DocTemplateMapper.toDto(template);
+        }
+
+        // Update the template's folder
+        template.setFolder(targetFolder);
+
+        // The entity is managed, no need to call save() explicitly since we're in a @Transactional method
+
+        return DocTemplateMapper.toDto(template);
+    }
+    /**
+     * Creates a copy of a document template without persisting it to the database
+     *
+     * @param id The ID of the template to copy
+     * @return A DTO representing the copied template (not saved in database)
+     * @throws IllegalArgumentException if template not found
+     */
+    public DocTemplateDto getTemplateCopy(Long id) {
+        // Find the original template
+        DocumentTemplate original = tplRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Template not found"));
+
+        // Create a DTO copy directly (without saving to database)
+        return DocTemplateDto.builder()
+                .id(null) // No ID since it's not persisted
+                .folderId(original.getFolder().getId())
+                .type(original.getType())
+                .name(original.getName() + " (Copy)")
+                .originalName(original.getOriginalName())
+                .mimeType(original.getMimeType())
+                .size(original.getSize())
+                .version(original.getVersion())
+                .active(original.isActive())
+                .uploadedBy(original.getUploadedBy())
+                .createdAt(null) // No creation timestamp yet
+                .build();
     }
 
     /* ---------- KPI helpers ---------- */
