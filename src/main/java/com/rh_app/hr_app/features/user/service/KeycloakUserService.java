@@ -1,6 +1,8 @@
 package com.rh_app.hr_app.features.user.service;
 
 import com.rh_app.hr_app.core.email.MailService;
+import com.rh_app.hr_app.features.department.model.Department;
+import com.rh_app.hr_app.features.department.repository.DepartmentRepository;
 import com.rh_app.hr_app.features.user.dto.SessionDto;
 import com.rh_app.hr_app.features.user.dto.UserDto;
 import com.rh_app.hr_app.features.user.mapper.UserMapper;
@@ -10,12 +12,13 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +29,9 @@ public class KeycloakUserService {
 
     private final Keycloak keycloak;
     private final MailService mailService;
+    private final DepartmentRepository departmentRepository;
+
+
 
     @Value("${keycloak.admin.realm}")
     private String realm;
@@ -33,10 +39,86 @@ public class KeycloakUserService {
     private static final Logger log = LoggerFactory.getLogger(KeycloakUserService.class);
 
 
+    private boolean departmentHasManager(String departmentId) {
+        if (departmentId == null || departmentId.isEmpty()) {
+            return false;
+        }
+
+        // Get all users in the department
+        List<UserDto> departmentUsers = getUsersByDepartment(departmentId);
+
+        // Check if any of them is a manager
+        return departmentUsers.stream()
+                .anyMatch(user -> "MANAGER".equalsIgnoreCase(user.getRole()));
+    }
+    /**
+     * Checks if a department already has the maximum number of support users (3)
+     * @param departmentId The department ID to check
+     * @return true if the department already has 3 support users, false otherwise
+     */
+    private boolean departmentHasMaxSupportUsers(String departmentId) {
+        if (departmentId == null || departmentId.isEmpty()) {
+            return false;
+        }
+
+        // Try to get the department from the repository first
+        try {
+            Long deptId = Long.parseLong(departmentId);
+            Optional<Department> department = departmentRepository.findById(deptId);
+
+            if (department.isPresent()) {
+                // Direct check using the department entity
+                return department.get().getSupportUserIds().size() >= 3;
+            }
+        } catch (NumberFormatException e) {
+            log.warn("Invalid department ID format: {}", departmentId);
+        } catch (Exception e) {
+            log.error("Error checking department support users count: {}", e.getMessage());
+        }
+
+        // Fallback: Get all users in the department with SUPPORT role
+        List<UserDto> departmentUsers = getUsersByDepartment(departmentId);
+
+        // Count users with SUPPORT role
+        long supportUserCount = departmentUsers.stream()
+                .filter(user -> "SUPPORT".equalsIgnoreCase(user.getRole()))
+                .count();
+
+        return supportUserCount >= 3;
+    }
+
+
+
     //  Create User
     public String createUser(UserDto dto) {
         // Use the mapper to include all custom attributes
+        if (dto.getDepartmentId() != null &&
+                dto.getRole() != null &&
+                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
+                departmentHasManager(dto.getDepartmentId())) {
+
+            return "Error: Cannot assign MANAGER role - department already has a manager";
+        }
+        // Check for SUPPORT role limit
+
+        if (dto.getDepartmentId() != null &&
+                dto.getRole() != null &&
+                "SUPPORT".equalsIgnoreCase(dto.getRole()) &&
+                departmentHasMaxSupportUsers(dto.getDepartmentId())) {
+
+            return "Error: Cannot assign SUPPORT role - department already has maximum number of support users (3)";
+        }
+
+
+
         UserRepresentation user = UserMapper.toUserRepresentation(dto);
+        if (dto.getDepartmentId() != null &&
+                dto.getRole() != null &&
+                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
+                departmentHasManager(dto.getDepartmentId())) {
+
+            return "Error: Cannot assign MANAGER role - department already has a manager";
+        }
 
         // Enable user if isActive is true (or null)
         boolean enabled = (dto.getIsActive() == null) || dto.getIsActive();
@@ -151,6 +233,30 @@ public class KeycloakUserService {
 
     //  Update User Profile
     public String updateUserProfile(String userId, UserDto dto) {
+        Optional<UserDto> existingUser = getUserById(userId);
+
+        // Check if trying to assign MANAGER role to a department that already has one
+        if (existingUser.isPresent() &&
+                dto.getRole() != null &&
+                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
+                !dto.getRole().equalsIgnoreCase(existingUser.get().getRole()) && // Role is changing to MANAGER
+                dto.getDepartmentId() != null &&
+                departmentHasManager(dto.getDepartmentId())) {
+
+            return "Error: Cannot assign MANAGER role - department already has a manager";
+        }
+        // Check if trying to assign SUPPORT role to a department that already has max support users
+        if (existingUser.isPresent() &&
+                dto.getRole() != null &&
+                "SUPPORT".equalsIgnoreCase(dto.getRole()) &&
+                !dto.getRole().equalsIgnoreCase(existingUser.get().getRole()) && // Role is changing to SUPPORT
+                dto.getDepartmentId() != null &&
+                departmentHasMaxSupportUsers(dto.getDepartmentId())) {
+
+            return "Error: Cannot assign SUPPORT role - department already has maximum number of support users (3)";
+        }
+
+
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
 
         // Update basic information
@@ -223,12 +329,85 @@ public class KeycloakUserService {
         if (dto.getIsArchived() != null) {
             user.singleAttribute("isArchived", String.valueOf(dto.getIsArchived()));
         }
+        if (dto.getCurrency() != null) {
+            user.singleAttribute("currency", dto.getCurrency());
+        }
 
         // Set enable/disable status
         user.setEnabled(Boolean.TRUE.equals(dto.getIsActive()));
 
         keycloak.realm(realm).users().get(userId).update(user);
+        // Check if a role update is requested
+        if (dto.getRole() != null && !dto.getRole().isEmpty()) {
+            try {
+                // First, get all current roles for the user and remove them
+                List<RoleRepresentation> currentRoles = keycloak.realm(realm).users().get(userId)
+                        .roles().realmLevel().listAll()
+                        .stream()
+                        .filter(role -> !role.getName().startsWith("default-roles-"))
+                        .collect(Collectors.toList());
+
+                if (!currentRoles.isEmpty()) {
+                    log.debug("Removing current roles: {}",
+                            currentRoles.stream().map(RoleRepresentation::getName).collect(Collectors.joining(", ")));
+                    keycloak.realm(realm).users().get(userId).roles().realmLevel().remove(currentRoles);
+                }
+
+                // Normalize to uppercase for consistency
+                String requestedRole = dto.getRole().toUpperCase();
+                RoleRepresentation roleToAdd = null;
+
+                // Look for an existing role with case-insensitive matching
+                List<RoleRepresentation> allRoles = keycloak.realm(realm).roles().list();
+                for (RoleRepresentation role : allRoles) {
+                    if (role.getName().equalsIgnoreCase(requestedRole)) {
+                        roleToAdd = role;
+                        log.debug("Found matching role: {} (requested: {})", role.getName(), requestedRole);
+                        break;
+                    }
+                }
+
+                // If no matching role was found, create it
+                if (roleToAdd == null) {
+                    log.debug("No matching role found, creating role: {}", requestedRole);
+                    try {
+                        RoleRepresentation newRoleObj = new RoleRepresentation();
+                        newRoleObj.setName(requestedRole);
+                        keycloak.realm(realm).roles().create(newRoleObj);
+
+                        // Small delay to ensure role creation is processed
+                        try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+
+                        // Now get the newly created role
+                        roleToAdd = keycloak.realm(realm).roles().get(requestedRole).toRepresentation();
+                        log.debug("Created new role: {}", requestedRole);
+                    } catch (Exception e) {
+                        if (e.getMessage().contains("409")) {
+                            log.warn("Role '{}' already exists but couldn't be found earlier", requestedRole);
+                            roleToAdd = keycloak.realm(realm).roles().get(requestedRole).toRepresentation();
+                        } else {
+                            throw e;
+                        }
+                    }
+                }
+
+                // Assign the new role
+                if (roleToAdd != null) {
+                    List<RoleRepresentation> rolesToAdd = Collections.singletonList(roleToAdd);
+                    keycloak.realm(realm).users().get(userId).roles().realmLevel().add(rolesToAdd);
+                    log.debug("Role '{}' assigned successfully", roleToAdd.getName());
+                } else {
+                    log.error("Failed to find or create role: {}", requestedRole);
+                    return "User updated successfully, but failed to update role: Could not find or create role";
+                }
+            } catch (Exception e) {
+                log.error("Error updating user role: {}", e.getMessage(), e);
+                return "User updated successfully, but failed to update role: " + e.getMessage();
+            }
+        }
+
         return "User updated successfully";
+
     }
     //  Delete User
 
@@ -381,12 +560,48 @@ public class KeycloakUserService {
                 .toList();
     }
 
-    // test all available roles
-    public List<String> listAllAvailableRoles() {
-        return keycloak.realm(realm).roles().list().stream()
-                .map(role -> role.getName())
+    /* kick from session method */
+    public void kickFromSession(String sessionId) {
+        try {
+            // false  ⇒ terminate an online (regular) session
+            keycloak.realm(realm).deleteSession(sessionId, false);
+            log.info("Successfully terminated session with ID: {}", sessionId);
+        } catch (Exception e) {
+            log.error("Unable to terminate session with ID {}: {}", sessionId, e.getMessage(), e);
+            throw new RuntimeException("Unable to terminate session " + sessionId, e);
+        }
+    }
+
+
+
+
+
+
+    /**
+     * Helper method to get a user ID by username
+     */
+    private String getUserIdByUsername(String username) {
+        List<UserRepresentation> users = keycloak.realm(realm).users().search(username);
+        if (users.isEmpty()) {
+            log.warn("User with username {} not found", username);
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+        return users.get(0).getId();
+    }
+    // get the non-archived users
+    public List<UserDto> getNonArchivedUsers() {
+        return keycloak.realm(realm).users().list().stream()
+                .map(UserMapper::fromUserRepresentation)
+                .filter(user -> !Boolean.TRUE.equals(user.getIsArchived()))
                 .collect(Collectors.toList());
     }
+
+//    // test all available roles
+//    public List<String> listAllAvailableRoles() {
+//        return keycloak.realm(realm).roles().list().stream()
+//                .map(role -> role.getName())
+//                .collect(Collectors.toList());
+//    }
 
 
 

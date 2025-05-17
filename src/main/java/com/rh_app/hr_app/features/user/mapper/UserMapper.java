@@ -99,6 +99,9 @@ public class UserMapper {
             attributes.put("isArchived",
                     List.of(dto.getIsArchived().toString()));   // "true" / "false"
         }
+        if (dto.getCurrency() != null) {
+            attributes.put("currency", List.of(dto.getCurrency()));
+        }
 
         user.setAttributes(attributes);
         user.setRequiredActions(List.of("UPDATE_PASSWORD"));
@@ -143,6 +146,7 @@ public class UserMapper {
                 .Location(getAttribute(attributes, "Location"))
                 .contract(getAttribute(attributes, "contract"))
                 .isArchived(parseBoolean(getAttribute(attributes, "isArchived")))
+                .currency(getAttribute(attributes, "currency"))
                 //  archived flag (convert String → Boolean)
 
                 .build();

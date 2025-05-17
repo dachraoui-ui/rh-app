@@ -2,53 +2,54 @@ package com.rh_app.hr_app.features.department.controller;
 
 import com.rh_app.hr_app.features.department.dto.DepartmentDto;
 import com.rh_app.hr_app.features.department.service.DepartmentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/departments")
 @RequiredArgsConstructor
 public class DepartmentController {
 
-    private final DepartmentService departmentService;
+    private final DepartmentService service;
 
+    /* ───────────────  DRH writes  ─────────────── */
+
+    @PostMapping
     @PreAuthorize("hasRole('DRH')")
-    @PostMapping("/create")
-    public ResponseEntity<DepartmentDto> create(@RequestBody DepartmentDto dto) {
-        return ResponseEntity.ok(departmentService.createDepartment(dto));
+    public ResponseEntity<DepartmentDto> create(@Valid @RequestBody DepartmentDto dto) {
+        return ResponseEntity.ok(service.createDepartment(dto));
     }
 
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('DRH')")
-    @GetMapping
-    public ResponseEntity<List<DepartmentDto>> getAll() {
-        return ResponseEntity.ok(departmentService.getAllDepartments());
+    public ResponseEntity<DepartmentDto> update(@PathVariable Long id,
+                                                @Valid @RequestBody DepartmentDto patch) {
+        return ResponseEntity.ok(service.updateDepartment(id, patch));
     }
 
-    @PreAuthorize("hasRole('DRH')")
-    @GetMapping("/{id}")
-    public ResponseEntity<DepartmentDto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(departmentService.getDepartmentById(id));
-    }
-
-    @PreAuthorize("hasRole('DRH')")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('DRH')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        departmentService.deleteDepartment(id);
+        service.deleteDepartment(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('DRH')")
-    @PutMapping("/{id}")
-    public ResponseEntity<DepartmentDto> updateDepartment(@PathVariable Long id, @RequestBody DepartmentDto dto) {
-        return ResponseEntity.ok(departmentService.updateDepartment(id, dto));
+    /* ───────────────  GRH / DRH read  ─────────────── */
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<List<DepartmentDto>> listAll() {
+        return ResponseEntity.ok(service.getAllDepartments());
     }
 
-
-
-
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<DepartmentDto> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getDepartmentById(id));
+    }
 }

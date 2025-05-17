@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:hrtest;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+
+  sql:
+    init:
+      mode: always            # still run schema.sql
+      schema-locations: classpath:schema.sql
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop   # keep it if you like
+    properties:
+      hibernate.default_schema: app

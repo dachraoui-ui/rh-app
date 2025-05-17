@@ -17,6 +17,7 @@ public class UserDto {
     private String photoUrl;
     private String departmentId;
     private Double salary;
+    private String currency;
     private Boolean isActive;
     private String password;
     private String role;

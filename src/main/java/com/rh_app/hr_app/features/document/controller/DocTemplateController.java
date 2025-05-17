@@ -5,9 +5,12 @@ import com.rh_app.hr_app.features.document.dto.DocTemplateUploadDto;
 import com.rh_app.hr_app.features.document.service.DocTemplateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,20 +25,26 @@ public class DocTemplateController {
     private final DocTemplateService service;
 
     /* ───────────────────────────────
-       Employee & HR – list active templates
+       Employee & HR – list active templates with role-based filtering
        ─────────────────────────────── */
     @GetMapping
-    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','GRH','DRH')")
-    public List<DocTemplateDto> list(@RequestParam Long folderId) {
-        return service.listActiveInFolder(folderId);
+    @PreAuthorize("isAuthenticated()")
+    public List<DocTemplateDto> list(@RequestParam Long folderId,
+                                     @AuthenticationPrincipal Jwt jwt) {
+        boolean isHrRole = jwt.getClaimAsMap("realm_access").toString().contains("DRH") ||
+                jwt.getClaimAsMap("realm_access").toString().contains("GRH");
+        return service.listActiveInFolderWithRoleFiltering(folderId, isHrRole);
     }
+
     /**
-     * List all active templates across all folders
+     * List all active templates across all folders with role-based filtering
      */
     @GetMapping("/all")
-    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','GRH','DRH')")
-    public List<DocTemplateDto> listAllActive() {
-        return service.listAllActive();
+    @PreAuthorize("isAuthenticated()")
+    public List<DocTemplateDto> listAllActive(@AuthenticationPrincipal Jwt jwt) {
+        boolean isHrRole = jwt.getClaimAsMap("realm_access").toString().contains("DRH") ||
+                jwt.getClaimAsMap("realm_access").toString().contains("GRH");
+        return service.listAllActiveWithRoleFiltering(isHrRole);
     }
 
     /* ───────────────────────────────
@@ -78,5 +87,32 @@ public class DocTemplateController {
         service.deleteTemplate(id);
         return ResponseEntity.noContent().build();
     }
+    /**
+     * Move a document template to a different folder
+     */
+    @PatchMapping("/{id}/move/{folderId}")
+    @PreAuthorize("hasRole('DRH')")
+    public ResponseEntity<DocTemplateDto> moveToFolder(
+            @PathVariable Long id,
+            @PathVariable Long folderId) {
+        try {
+            DocTemplateDto updated = service.moveToFolder(id, folderId);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+    @GetMapping("/{id}/copy")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<DocTemplateDto> getTemplateCopy(@PathVariable Long id) {
+        try {
+            DocTemplateDto copy = service.getTemplateCopy(id);
+            return ResponseEntity.ok(copy);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
 
 }
