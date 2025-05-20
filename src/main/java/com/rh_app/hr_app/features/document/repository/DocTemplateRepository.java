@@ -3,6 +3,8 @@ package com.rh_app.hr_app.features.document.repository;
 import com.rh_app.hr_app.core.enums.document_enums.DocTemplateType;
 import com.rh_app.hr_app.features.document.model.DocumentTemplate;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -14,6 +16,9 @@ public interface DocTemplateRepository extends JpaRepository<DocumentTemplate, L
      * Find all active templates sorted by name
      */
     List<DocumentTemplate> findByActiveTrueOrderByNameAsc();
+
+    @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM DocumentRequest r WHERE r.template.id = :templateId")
+    boolean isTemplateInUse(@Param("templateId") Long templateId);
 
     /* KPI helpers ---------------------------------------------------- */
 

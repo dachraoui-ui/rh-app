@@ -119,19 +119,53 @@ public class DocTemplateService {
      * @throws IllegalArgumentException if the template doesn't exist
      */
     @Transactional
-    public void deleteTemplate(Long id) {
+    public boolean deleteTemplate(Long id) {
         DocumentTemplate template = tplRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Template not found with ID: " + id));
 
-        // You can choose to either:
-        // 1. Hard delete (actually remove from database)
-        tplRepo.delete(template);
+        // Check if the template is referenced by any requests
+        // This would typically be done via a repository method that checks related entities
+        boolean isTemplateInUse = isTemplateReferencedByRequests(id);
 
-        // Or alternatively:
-        // 2. Soft delete (just mark as inactive)
-        // template.setActive(false);
-        // No need to call save() here since the entity is managed and will be dirty-tracked
+        if (isTemplateInUse) {
+            // Template is in use, can't delete
+            return false;
+        }
+        // Template is not in use, safe to delete
+        tplRepo.delete(template);
+        return true;
     }
+    // Helper method to check if a template is referenced by any requests
+    private boolean isTemplateReferencedByRequests(Long templateId) {
+        // You would need to implement this method based on your data model
+        // For example, querying a document request repository with:
+        // return docRequestRepository.existsByTemplateId(templateId);
+
+        // This is a placeholder - replace with actual implementation
+        return tplRepo.isTemplateInUse(templateId);
+    }
+
+    /**
+     * Deactivate a document template (soft delete)
+     * @param id The ID of the template to deactivate
+     * @return The updated template DTO with active=false
+     * @throws IllegalArgumentException if the template doesn't exist
+     */
+    @Transactional
+    public DocTemplateDto deactivateTemplate(Long id) {
+        DocumentTemplate template = tplRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Template not found with ID: " + id));
+        // Check if already inactive
+        if (!template.isActive()) {
+            return DocTemplateMapper.toDto(template);
+        }
+        // Set as inactive
+        template.setActive(false);
+        // Return the updated template
+        return DocTemplateMapper.toDto(template);
+    }
+
+
     /**
      * Move a document template to a different folder
      * @param templateId The ID of the template to move
@@ -160,32 +194,21 @@ public class DocTemplateService {
 
         return DocTemplateMapper.toDto(template);
     }
-    /**
-     * Creates a copy of a document template without persisting it to the database
-     *
-     * @param id The ID of the template to copy
-     * @return A DTO representing the copied template (not saved in database)
-     * @throws IllegalArgumentException if template not found
-     */
-    public DocTemplateDto getTemplateCopy(Long id) {
-        // Find the original template
-        DocumentTemplate original = tplRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Template not found"));
+    @Transactional
+    public DocTemplateDto updateTemplateNameAndType(Long id, String name, DocTemplateType type) {
+        DocumentTemplate template = tplRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Template not found with ID: " + id));
 
-        // Create a DTO copy directly (without saving to database)
-        return DocTemplateDto.builder()
-                .id(null) // No ID since it's not persisted
-                .folderId(original.getFolder().getId())
-                .type(original.getType())
-                .name(original.getName() + " (Copy)")
-                .originalName(original.getOriginalName())
-                .mimeType(original.getMimeType())
-                .size(original.getSize())
-                .version(original.getVersion())
-                .active(original.isActive())
-                .uploadedBy(original.getUploadedBy())
-                .createdAt(null) // No creation timestamp yet
-                .build();
+        if (name != null && !name.isBlank()) {
+            template.setName(name);
+        }
+
+        if (type != null) {
+            template.setType(type);
+        }
+
+        // No explicit save needed in @Transactional context
+        return DocTemplateMapper.toDto(template);
     }
 
     /* ---------- KPI helpers ---------- */

@@ -1,6 +1,6 @@
 package com.rh_app.hr_app.features.project.model;
 
-import com.rh_app.hr_app.features.employee.model.Employee;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -19,9 +19,6 @@ public class EmployeeProjetRole {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idEmpProjetRole;
 
-    @ManyToOne
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employee;
 
     @ManyToOne
     @JoinColumn(name = "projet_id", nullable = false)
