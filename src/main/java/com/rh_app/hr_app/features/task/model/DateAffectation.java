@@ -1,6 +1,6 @@
 package com.rh_app.hr_app.features.task.model;
 
-import com.rh_app.hr_app.features.employee.model.Employee;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -19,9 +19,7 @@ public class DateAffectation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idDateAffectation;
 
-    @ManyToOne
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employee;
+
 
     @ManyToOne
     @JoinColumn(name = "tache_id", nullable = false)

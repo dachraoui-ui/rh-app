@@ -1,9 +1,12 @@
 package com.rh_app.hr_app.features.document.service;
 
 import com.rh_app.hr_app.core.enums.document_enums.DocRequestStatus;
+import com.rh_app.hr_app.core.enums.document_enums.DocTemplateType;
 import com.rh_app.hr_app.features.document.dto.*;
 import com.rh_app.hr_app.features.document.mapper.DocRequestMapper;
+import com.rh_app.hr_app.features.document.mapper.DocTemplateMapper;
 import com.rh_app.hr_app.features.document.model.DocumentRequest;
+import com.rh_app.hr_app.features.document.model.DocumentTemplate;
 import com.rh_app.hr_app.features.document.repository.DocRequestRepository;
 import com.rh_app.hr_app.features.document.repository.DocTemplateRepository;
 import jakarta.transaction.Transactional;
@@ -88,6 +91,22 @@ public class DocRequestService {
         r.setResolvedBy(hrUser);
         r.setResolvedAt(Instant.now());
         return DocRequestMapper.toDto(r);
+    }
+    @Transactional
+    public DocTemplateDto updateTemplateNameAndType(Long id, String name, DocTemplateType type) {
+        DocumentTemplate template = tplRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Template not found with ID: " + id));
+
+        if (name != null && !name.isBlank()) {
+            template.setName(name);
+        }
+
+        if (type != null) {
+            template.setType(type);
+        }
+
+        // No explicit save needed in @Transactional context
+        return DocTemplateMapper.toDto(template);
     }
 
     /* ====== KPI helpers =================================================== */

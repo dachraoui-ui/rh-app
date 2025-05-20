@@ -1,6 +1,7 @@
 package com.rh_app.hr_app.features.document.controller;
 
 import com.rh_app.hr_app.core.enums.document_enums.DocRequestStatus;
+import com.rh_app.hr_app.core.enums.document_enums.DocTemplateType;
 import com.rh_app.hr_app.features.document.dto.*;
 import com.rh_app.hr_app.features.document.service.DocRequestService;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -80,6 +82,21 @@ public class DocRequestController {
 
         return service.markReady(id, pdf,
                 jwt.getClaim("preferred_username"));
+    }
+    @PatchMapping("/{id}/update")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<DocTemplateDto> updateTemplateNameAndType(
+            @PathVariable Long id,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) DocTemplateType type) {
+        try {
+            DocTemplateDto updated = service.updateTemplateNameAndType(id, name, type);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     /* ══ KPI quick counts (GRH / DRH) ═══════════════════════════ */

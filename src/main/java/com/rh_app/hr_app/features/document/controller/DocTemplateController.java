@@ -1,5 +1,6 @@
 package com.rh_app.hr_app.features.document.controller;
 
+import com.rh_app.hr_app.core.enums.document_enums.DocTemplateType;
 import com.rh_app.hr_app.features.document.dto.DocTemplateDto;
 import com.rh_app.hr_app.features.document.dto.DocTemplateUploadDto;
 import com.rh_app.hr_app.features.document.service.DocTemplateService;
@@ -52,7 +53,7 @@ public class DocTemplateController {
        multipart/form-data  (file + meta JSON)
        ─────────────────────────────── */
     @PostMapping
-    @PreAuthorize("hasRole('DRH')")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
     public DocTemplateDto upload(@RequestPart("file") MultipartFile file,
                                  @RequestPart("meta") DocTemplateUploadDto meta,
                                  @org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -82,16 +83,51 @@ public class DocTemplateController {
      * Delete a document template
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('DRH')")
-    public ResponseEntity<Void> deleteTemplate(@PathVariable Long id) {
-        service.deleteTemplate(id);
-        return ResponseEntity.noContent().build();
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<?> deleteTemplate(@PathVariable Long id) {
+        try {
+            boolean deleted = service.deleteTemplate(id);
+
+            if (deleted) {
+                // Successfully deleted
+                return ResponseEntity.noContent().build();
+            } else {
+                // Template is in use, can't delete
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body("This document template cannot be deleted because it is currently in use");
+            }
+        } catch (IllegalArgumentException e) {
+            // Template not found
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            // Other unexpected errors
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while deleting the template: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Deactivate a document template (soft delete)
+     */
+    @PatchMapping("/{id}/deactivate")
+    @PreAuthorize("hasAnyRole('DRH','GRH')")
+    public ResponseEntity<DocTemplateDto> deactivateTemplate(@PathVariable Long id) {
+        try {
+            DocTemplateDto deactivated = service.deactivateTemplate(id);
+            return ResponseEntity.ok(deactivated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     /**
      * Move a document template to a different folder
      */
     @PatchMapping("/{id}/move/{folderId}")
-    @PreAuthorize("hasRole('DRH')")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
     public ResponseEntity<DocTemplateDto> moveToFolder(
             @PathVariable Long id,
             @PathVariable Long folderId) {
@@ -102,13 +138,18 @@ public class DocTemplateController {
             return ResponseEntity.badRequest().body(null);
         }
     }
-    @GetMapping("/{id}/copy")
+    @PatchMapping("/{id}/update")
     @PreAuthorize("hasAnyRole('GRH','DRH')")
-    public ResponseEntity<DocTemplateDto> getTemplateCopy(@PathVariable Long id) {
+    public ResponseEntity<DocTemplateDto> updateTemplateNameAndType(
+            @PathVariable Long id,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) DocTemplateType type) {
         try {
-            DocTemplateDto copy = service.getTemplateCopy(id);
-            return ResponseEntity.ok(copy);
+            DocTemplateDto updated = service.updateTemplateNameAndType(id, name, type);
+            return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
