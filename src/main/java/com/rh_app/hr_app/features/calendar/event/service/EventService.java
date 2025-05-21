@@ -21,7 +21,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -62,9 +64,19 @@ public class EventService {
 
     @Transactional
     public EventDto updateEvent(Long eventId, EventDto eventDto) {
-        log.info("Updating event with ID: {}", eventId);
+        return updateEvent(eventId, eventDto, false, false);
+    }
 
-        // Fetch existing event
+    @Transactional
+    public EventDto updateEvent(Long eventId, EventDto eventDto, boolean replaceNotifications) {
+        return updateEvent(eventId, eventDto, replaceNotifications, false);
+    }
+
+    @Transactional
+    public EventDto updateEvent(Long eventId, EventDto eventDto, boolean replaceNotifications, boolean skipNotificationSending) {
+        log.info("Updating event with ID: {}, replace notifications: {}, skip notification sending: {}", 
+                eventId, replaceNotifications, skipNotificationSending);
+
         Event existingEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("Event not found with ID: " + eventId));
 
@@ -80,22 +92,77 @@ public class EventService {
         existingEvent.setImportance(eventDto.getImportance());
         existingEvent.setCalendarType(eventDto.getCalendarType());
 
-        // Handle notifications
-        if (eventDto.getNotifications() != null) {
-            // Clear existing notifications that haven't been sent yet
-            List<EventNotification> notificationsToRemove = new ArrayList<>();
-            for (EventNotification notification : existingEvent.getNotifications()) {
-                if (!notification.isSent()) {
-                    notificationsToRemove.add(notification);
+        // Create a set of existing notification time/type pairs to avoid duplicates
+        // Only if skipNotificationSending is true
+        Set<String> existingNotificationKeys = new HashSet<>();
+        if (skipNotificationSending) {
+            existingEvent.getNotifications().forEach(notification -> {
+                String key = notification.getType() + ":" + notification.getMinutesBefore();
+                existingNotificationKeys.add(key);
+                log.debug("Found existing notification: {}", key);
+            });
+        }
+
+        // Handle notifications based on the flag
+        if (replaceNotifications) {
+            log.info("Replacing all notifications for event ID: {}", eventId);
+            
+            // First save notification IDs for later deletion
+            List<Long> notificationIdsToDelete = existingEvent.getNotifications().stream()
+                    .map(EventNotification::getId)
+                    .collect(java.util.stream.Collectors.toList());
+            
+            // Clear the collection
+            existingEvent.getNotifications().clear();
+            
+            // Delete the notifications from the repository
+            for (Long notificationId : notificationIdsToDelete) {
+                notificationRepository.deleteById(notificationId);
+            }
+            
+            // Add new notifications from the DTO
+            if (eventDto.getNotifications() != null) {
+                log.info("Adding {} new notifications", eventDto.getNotifications().size());
+                for (NotificationDto notifDto : eventDto.getNotifications()) {
+                    if ("email".equals(notifDto.getType())) {
+                        String key = notifDto.getType() + ":" + notifDto.getTime();
+                        boolean shouldSkip = skipNotificationSending && existingNotificationKeys.contains(key);
+                        
+                        if (shouldSkip) {
+                            log.info("Skipping notification send for existing notification: {}", key);
+                            createNotificationWithoutSending(existingEvent, notifDto);
+                        } else {
+                            createNotification(existingEvent, notifDto);
+                        }
+                    }
                 }
             }
+        } else {
+            // Original logic: only remove unsent notifications
+            log.info("Using original notification update logic (keeping sent notifications)");
+            List<EventNotification> notificationsToRemove = existingEvent.getNotifications().stream()
+                    .filter(notification -> !notification.isSent())
+                    .toList();
 
-            existingEvent.getNotifications().removeAll(notificationsToRemove);
+            for (EventNotification notification : notificationsToRemove) {
+                existingEvent.getNotifications().remove(notification);
+                notificationRepository.delete(notification);
+            }
 
-            // Add new notifications
-            for (NotificationDto notifDto : eventDto.getNotifications()) {
-                if ("email".equals(notifDto.getType())) {
-                    createNotification(existingEvent, notifDto);
+            // Add new notifications from the DTO
+            if (eventDto.getNotifications() != null) {
+                for (NotificationDto notifDto : eventDto.getNotifications()) {
+                    if ("email".equals(notifDto.getType())) {
+                        String key = notifDto.getType() + ":" + notifDto.getTime();
+                        boolean shouldSkip = skipNotificationSending && existingNotificationKeys.contains(key);
+                        
+                        if (shouldSkip) {
+                            log.info("Skipping notification send for existing notification: {}", key);
+                            createNotificationWithoutSending(existingEvent, notifDto);
+                        } else {
+                            createNotification(existingEvent, notifDto);
+                        }
+                    }
                 }
             }
         }
@@ -119,6 +186,26 @@ public class EventService {
         eventRepository.save(event);
 
         log.info("Event soft-deleted: {}", event.getTitle());
+    }
+
+    @Transactional
+    public void deleteNotification(Long notificationId) {
+        log.info("Deleting notification with ID: {}", notificationId);
+
+        EventNotification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + notificationId));
+
+        // Remove from parent event's collection to maintain relationship integrity
+        Event parentEvent = notification.getEvent();
+        parentEvent.getNotifications().remove(notification);
+
+        // Delete the notification
+        notificationRepository.delete(notification);
+
+        // Save the parent event to update its notifications collection
+        eventRepository.save(parentEvent);
+
+        log.info("Notification with ID: {} deleted successfully", notificationId);
     }
 
     @Transactional(readOnly = true)
@@ -167,9 +254,54 @@ public class EventService {
         }
     }
 
+    // Helper method to create a notification without sending immediate emails
+    private void createNotificationWithoutSending(Event event, NotificationDto notifDto) {
+        // Calculate when the event will happen
+        LocalDateTime eventDateTime = event.getDate().atTime(
+                event.isAllDay() ? LocalTime.NOON : event.getStartTime());
+
+        // Calculate when the notification should be sent
+        LocalDateTime notificationTime = eventDateTime.minusMinutes(notifDto.getTime());
+
+        LocalDateTime now = LocalDateTime.now();
+        boolean isInPast = notificationTime.isBefore(now);
+
+        log.info("Creating notification (without sending) for event '{}': event at {}, notification at {}, isPast={}",
+                event.getTitle(), eventDateTime, notificationTime, isInPast);
+
+        // Create notification entity
+        EventNotification notification = EventNotification.builder()
+                .event(event)
+                .type(notifDto.getType())
+                .minutesBefore(notifDto.getTime())
+                .scheduledTime(notificationTime)
+                .sent(isInPast)
+                .sentAt(isInPast ? now : null)
+                .build();
+
+        // Add to event's collection
+        event.getNotifications().add(notification);
+    }
+
     @Transactional(readOnly = true)
     public List<EventDto> getAllEvents() {
         return eventRepository.findAllActive().stream()
+                .map(eventMapper::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<EventDto> getAllEvents(String guestEmail) {
+        List<Event> events;
+        
+        if (guestEmail != null && !guestEmail.trim().isEmpty()) {
+            log.info("Filtering events by guest email: {}", guestEmail);
+            events = eventRepository.findByGuestEmailContainingAndNotDeleted(guestEmail.trim());
+        } else {
+            events = eventRepository.findAllActive();
+        }
+        
+        return events.stream()
                 .map(eventMapper::toDto)
                 .toList();
     }

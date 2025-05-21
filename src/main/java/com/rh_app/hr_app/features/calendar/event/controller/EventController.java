@@ -38,8 +38,9 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventDto>> getAllEvents() {
-        return ResponseEntity.ok(eventService.getAllEvents());
+    public ResponseEntity<List<EventDto>> getAllEvents(
+            @RequestParam(required = false) String guest) {
+        return ResponseEntity.ok(eventService.getAllEvents(guest));
     }
 
     @GetMapping("/{id}")
@@ -48,8 +49,19 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventDto> updateEvent(@PathVariable Long id, @RequestBody EventDto eventDto) {
-        return ResponseEntity.ok(eventService.updateEvent(id, eventDto));
+    public ResponseEntity<EventDto> updateEvent(
+            @PathVariable Long id, 
+            @RequestBody EventDto eventDto,
+            @RequestHeader(value = "X-Replace-Notifications", required = false) String replaceNotifications,
+            @RequestHeader(value = "X-Skip-Notification-Sending", required = false) String skipNotificationSending) {
+        
+        boolean shouldReplaceNotifications = "true".equalsIgnoreCase(replaceNotifications);
+        boolean shouldSkipNotificationSending = "true".equalsIgnoreCase(skipNotificationSending);
+        
+        log.info("Updating event with ID: {}, replace notifications: {}, skip notification sending: {}", 
+                id, shouldReplaceNotifications, shouldSkipNotificationSending);
+        
+        return ResponseEntity.ok(eventService.updateEvent(id, eventDto, shouldReplaceNotifications, shouldSkipNotificationSending));
     }
 
     @DeleteMapping("/{id}")
@@ -84,20 +96,8 @@ public class EventController {
     }
     @DeleteMapping("/notifications/{notificationId}")
     public ResponseEntity<Void> deleteNotification(@PathVariable Long notificationId) {
-        log.info("Deleting notification with ID: {}", notificationId);
-
         try {
-            EventNotification notification = notificationRepository.findById(notificationId)
-                    .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + notificationId));
-
-            // Remove from parent event's collection to maintain relationship integrity
-            Event parentEvent = notification.getEvent();
-            parentEvent.getNotifications().remove(notification);
-
-            // Delete the notification
-            notificationRepository.delete(notification);
-
-            log.info("Notification with ID: {} deleted successfully", notificationId);
+            eventService.deleteNotification(notificationId);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             log.error("Failed to delete notification with ID {}: {}", notificationId, e.getMessage(), e);
