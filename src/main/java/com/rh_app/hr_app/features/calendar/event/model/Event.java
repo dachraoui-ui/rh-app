@@ -47,9 +47,8 @@ public class Event {
     private String importance; // 'low', 'medium', 'high'
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "event")
-    @JsonManagedReference // Add this annotation
+    @JsonManagedReference
     private List<EventNotification> notifications = new ArrayList<>();
-
     @Column(nullable = false)
     private boolean isDeleted = false;
 }
