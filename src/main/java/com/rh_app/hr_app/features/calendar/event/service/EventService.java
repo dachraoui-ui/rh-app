@@ -290,6 +290,22 @@ public class EventService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<EventDto> getAllEvents(String guestEmail) {
+        List<Event> events;
+        
+        if (guestEmail != null && !guestEmail.trim().isEmpty()) {
+            log.info("Filtering events by guest email: {}", guestEmail);
+            events = eventRepository.findByGuestEmailContainingAndNotDeleted(guestEmail.trim());
+        } else {
+            events = eventRepository.findAllActive();
+        }
+        
+        return events.stream()
+                .map(eventMapper::toDto)
+                .toList();
+    }
+
     // Updated scheduler with explicit transaction management
     @Scheduled(fixedRate = 60000, initialDelay = 10000)
     public void processScheduledNotifications() {

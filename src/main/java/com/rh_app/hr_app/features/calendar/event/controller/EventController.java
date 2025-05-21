@@ -38,8 +38,9 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventDto>> getAllEvents() {
-        return ResponseEntity.ok(eventService.getAllEvents());
+    public ResponseEntity<List<EventDto>> getAllEvents(
+            @RequestParam(required = false) String guest) {
+        return ResponseEntity.ok(eventService.getAllEvents(guest));
     }
 
     @GetMapping("/{id}")
@@ -106,4 +107,3 @@ public class EventController {
 
 
 }
-
