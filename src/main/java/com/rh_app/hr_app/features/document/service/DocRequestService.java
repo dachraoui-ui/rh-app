@@ -50,16 +50,52 @@ public class DocRequestService {
     private static final List<DocRequestStatus> BACKLOG =
             List.of(DocRequestStatus.REQUESTED,
                     DocRequestStatus.ACCEPTED,
-                    DocRequestStatus.PREPARING);
+                    DocRequestStatus.PREPARING,
+                    DocRequestStatus.READY,
+                    DocRequestStatus.DELIVERED,
+                    DocRequestStatus.REJECTED);
 
-    public Page<DocRequestDto> listBacklog(Pageable p) {
-        return repo.findByStatusInOrderByCreatedAtAsc(BACKLOG, p)
+    /* List all document requests regardless of status */
+    public Page<DocRequestDto> listAllRequests(Pageable p) {
+        return repo.findAllByOrderByCreatedAtAsc(p)
                 .map(DocRequestMapper::toDto);
     }
 
     public Page<DocRequestDto> listAssigned(String grh, Pageable p) {
         return repo.findByAssignedToAndStatusInOrderByCreatedAtAsc(grh, BACKLOG, p)
                 .map(DocRequestMapper::toDto);
+    }
+    /**
+     * Retrieve a document request file for download by an employee
+     * @param id Request ID
+     * @param username Employee username
+     * @return The document request with file data
+     * @throws IllegalArgumentException if request doesn't exist or doesn't belong to user
+     * @throws IllegalStateException if document isn't ready for download
+     */
+    @Transactional
+    public DocumentRequest getRequestFileForDownload(Long id, String username) {
+        DocumentRequest request = repo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Document request not found"));
+
+        // Verify the request belongs to this user
+        if (!request.getRequestedBy().equals(username)) {
+            throw new IllegalArgumentException("Document request not found");
+        }
+
+        // Verify document is READY or DELIVERED
+        if (request.getStatus() != DocRequestStatus.READY &&
+                request.getStatus() != DocRequestStatus.DELIVERED) {
+            throw new IllegalStateException("Document is not ready for download");
+        }
+
+        // If document was ready but not delivered yet, mark as delivered
+        if (request.getStatus() == DocRequestStatus.READY) {
+            request.setStatus(DocRequestStatus.DELIVERED);
+            request.setDeliveredAt(Instant.now());
+        }
+
+        return request;
     }
 
     /* ====== WORKFLOW  (GRH / DRH) ======================================== */
@@ -92,22 +128,7 @@ public class DocRequestService {
         r.setResolvedAt(Instant.now());
         return DocRequestMapper.toDto(r);
     }
-    @Transactional
-    public DocTemplateDto updateTemplateNameAndType(Long id, String name, DocTemplateType type) {
-        DocumentTemplate template = tplRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Template not found with ID: " + id));
 
-        if (name != null && !name.isBlank()) {
-            template.setName(name);
-        }
-
-        if (type != null) {
-            template.setType(type);
-        }
-
-        // No explicit save needed in @Transactional context
-        return DocTemplateMapper.toDto(template);
-    }
 
     /* ====== KPI helpers =================================================== */
 

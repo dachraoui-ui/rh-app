@@ -28,24 +28,27 @@ public class DocTemplateController {
     /* ───────────────────────────────
        Employee & HR – list active templates with role-based filtering
        ─────────────────────────────── */
+    /* ───────────────────────────────
+   Employee & HR – list templates with role-based filtering
+   ─────────────────────────────── */
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public List<DocTemplateDto> list(@RequestParam Long folderId,
-                                     @AuthenticationPrincipal Jwt jwt) {
+    public List<DocTemplateDto> listTemplates(@RequestParam Long folderId,
+                                              @AuthenticationPrincipal Jwt jwt) {
         boolean isHrRole = jwt.getClaimAsMap("realm_access").toString().contains("DRH") ||
                 jwt.getClaimAsMap("realm_access").toString().contains("GRH");
-        return service.listActiveInFolderWithRoleFiltering(folderId, isHrRole);
+        return service.listInFolderWithRoleFiltering(folderId, isHrRole);
     }
 
     /**
-     * List all active templates across all folders with role-based filtering
+     * List all templates across all folders with role-based filtering
      */
     @GetMapping("/all")
     @PreAuthorize("isAuthenticated()")
-    public List<DocTemplateDto> listAllActive(@AuthenticationPrincipal Jwt jwt) {
+    public List<DocTemplateDto> listAllTemplates(@AuthenticationPrincipal Jwt jwt) {
         boolean isHrRole = jwt.getClaimAsMap("realm_access").toString().contains("DRH") ||
                 jwt.getClaimAsMap("realm_access").toString().contains("GRH");
-        return service.listAllActiveWithRoleFiltering(isHrRole);
+        return service.listAllWithRoleFiltering(isHrRole);
     }
 
     /* ───────────────────────────────
@@ -117,6 +120,21 @@ public class DocTemplateController {
         try {
             DocTemplateDto deactivated = service.deactivateTemplate(id);
             return ResponseEntity.ok(deactivated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    /**
+     * Activate a document template
+     */
+    @PatchMapping("/{id}/activate")
+    @PreAuthorize("hasAnyRole('DRH','GRH')")
+    public ResponseEntity<DocTemplateDto> activateTemplate(@PathVariable Long id) {
+        try {
+            DocTemplateDto activated = service.activateTemplate(id);
+            return ResponseEntity.ok(activated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {

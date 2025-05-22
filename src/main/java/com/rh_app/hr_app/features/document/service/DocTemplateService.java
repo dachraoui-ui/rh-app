@@ -23,49 +23,64 @@ public class DocTemplateService {
     private final DocTemplateRepository tplRepo;
     private final DocFolderRepository   folderRepo;
 
+
     /**
-     * List active templates in folder with role-based filtering
+     * List templates in folder with role-based filtering
      * @param folderId Folder ID to list templates from
      * @param isHrRole Whether the current user has DRH or GRH role
      * @return Filtered list of document templates
      */
-    public List<DocTemplateDto> listActiveInFolderWithRoleFiltering(Long folderId, boolean isHrRole) {
-        List<DocumentTemplate> templates = tplRepo.findByActiveTrueAndFolderIdOrderByNameAsc(folderId);
+    public List<DocTemplateDto> listInFolderWithRoleFiltering(Long folderId, boolean isHrRole) {
+        List<DocumentTemplate> templates;
 
-        // If HR role, return all templates
         if (isHrRole) {
-            return templates.stream().map(DocTemplateMapper::toDto).toList();
+            // For HR roles, show all templates (active and inactive)
+            templates = tplRepo.findByFolderIdOrderByNameAsc(folderId);
+        } else {
+            // For non-HR roles, only show active templates
+            templates = tplRepo.findByActiveTrueAndFolderIdOrderByNameAsc(folderId);
         }
 
-        // Otherwise filter only allowed types
-        return templates.stream()
-                .filter(t -> t.getType() == DocTemplateType.ASSESSMENT ||
-                        t.getType() == DocTemplateType.CERTIFICATE ||
-                        t.getType() == DocTemplateType.OTHER)
-                .map(DocTemplateMapper::toDto)
-                .toList();
+        // Apply type-based filtering for non-HR roles
+        if (!isHrRole) {
+            return templates.stream()
+                    .filter(t -> t.getType() == DocTemplateType.ASSESSMENT ||
+                            t.getType() == DocTemplateType.CERTIFICATE ||
+                            t.getType() == DocTemplateType.OTHER)
+                    .map(DocTemplateMapper::toDto)
+                    .toList();
+        }
+
+        return templates.stream().map(DocTemplateMapper::toDto).toList();
     }
 
     /**
-     * List all active templates with role-based filtering
+     * List all templates with role-based filtering
      * @param isHrRole Whether the current user has DRH or GRH role
-     * @return Filtered list of all active document templates
+     * @return Filtered list of document templates
      */
-    public List<DocTemplateDto> listAllActiveWithRoleFiltering(boolean isHrRole) {
-        List<DocumentTemplate> templates = tplRepo.findByActiveTrueOrderByNameAsc();
+    public List<DocTemplateDto> listAllWithRoleFiltering(boolean isHrRole) {
+        List<DocumentTemplate> templates;
 
-        // If HR role, return all templates
         if (isHrRole) {
-            return templates.stream().map(DocTemplateMapper::toDto).toList();
+            // For HR roles, show all templates (active and inactive)
+            templates = tplRepo.findAllByOrderByNameAsc();
+        } else {
+            // For non-HR roles, only show active templates
+            templates = tplRepo.findByActiveTrueOrderByNameAsc();
         }
 
-        // Otherwise filter only allowed types
-        return templates.stream()
-                .filter(t -> t.getType() == DocTemplateType.ASSESSMENT ||
-                        t.getType() == DocTemplateType.CERTIFICATE ||
-                        t.getType() == DocTemplateType.OTHER)
-                .map(DocTemplateMapper::toDto)
-                .toList();
+        // Apply type-based filtering for non-HR roles
+        if (!isHrRole) {
+            return templates.stream()
+                    .filter(t -> t.getType() == DocTemplateType.ASSESSMENT ||
+                            t.getType() == DocTemplateType.CERTIFICATE ||
+                            t.getType() == DocTemplateType.OTHER)
+                    .map(DocTemplateMapper::toDto)
+                    .toList();
+        }
+
+        return templates.stream().map(DocTemplateMapper::toDto).toList();
     }
 
 
@@ -161,6 +176,28 @@ public class DocTemplateService {
         }
         // Set as inactive
         template.setActive(false);
+        // Return the updated template
+        return DocTemplateMapper.toDto(template);
+    }
+    /**
+     * Activate a document template
+     * @param id The ID of the template to activate
+     * @return The updated template DTO with active=true
+     * @throws IllegalArgumentException if the template doesn't exist
+     */
+    @Transactional
+    public DocTemplateDto activateTemplate(Long id) {
+        DocumentTemplate template = tplRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Template not found with ID: " + id));
+
+        // Check if already active
+        if (template.isActive()) {
+            return DocTemplateMapper.toDto(template);
+        }
+
+        // Set as active
+        template.setActive(true);
+
         // Return the updated template
         return DocTemplateMapper.toDto(template);
     }

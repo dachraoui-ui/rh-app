@@ -18,9 +18,8 @@ public interface DocRequestRepository extends JpaRepository<DocumentRequest, Lon
     Page<DocumentRequest> findByRequestedByOrderByCreatedAtDesc(
             String requestedBy, Pageable page);
 
-    /* HR inbox filter (e.g. OPEN = REQUESTED+ACCEPTED+PREPARING). */
-    Page<DocumentRequest> findByStatusInOrderByCreatedAtAsc(
-            Collection<DocRequestStatus> statuses, Pageable page);
+    // In DocRequestRepository.java
+    Page<DocumentRequest> findAllByOrderByCreatedAtAsc(Pageable pageable);
 
     /* GRH “assigned to me” view. */
     Page<DocumentRequest> findByAssignedToAndStatusInOrderByCreatedAtAsc(

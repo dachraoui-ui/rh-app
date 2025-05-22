@@ -1,14 +1,15 @@
 package com.rh_app.hr_app.features.document.controller;
 
-import com.rh_app.hr_app.core.enums.document_enums.DocRequestStatus;
-import com.rh_app.hr_app.core.enums.document_enums.DocTemplateType;
+
 import com.rh_app.hr_app.features.document.dto.*;
+import com.rh_app.hr_app.features.document.model.DocumentRequest;
 import com.rh_app.hr_app.features.document.service.DocRequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -50,7 +51,7 @@ public class DocRequestController {
     @GetMapping("/backlog")
     @PreAuthorize("hasAnyRole('GRH','DRH')")
     public Page<DocRequestDto> backlog(Pageable p) {
-        return service.listBacklog(p);
+        return service.listAllRequests(p); // Now using listAllRequests to show all statuses
     }
 
     @GetMapping("/assigned")
@@ -83,21 +84,34 @@ public class DocRequestController {
         return service.markReady(id, pdf,
                 jwt.getClaim("preferred_username"));
     }
-    @PatchMapping("/{id}/update")
-    @PreAuthorize("hasAnyRole('GRH','DRH')")
-    public ResponseEntity<DocTemplateDto> updateTemplateNameAndType(
-            @PathVariable Long id,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) DocTemplateType type) {
+
+    /**
+     * Download a ready document file
+     * @param id The document request ID
+     * @param jwt Current user's JWT
+     * @return The document file as byte stream
+     */
+    @GetMapping("/{id}/download")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','MANAGER','SUPPORT')")
+    public ResponseEntity<byte[]> downloadDocument(@PathVariable Long id,
+                                                   @AuthenticationPrincipal Jwt jwt) {
         try {
-            DocTemplateDto updated = service.updateTemplateNameAndType(id, name, type);
-            return ResponseEntity.ok(updated);
+            String username = jwt.getClaim("preferred_username");
+            DocumentRequest request = service.getRequestFileForDownload(id, username);
+
+            return ResponseEntity.ok()
+                    .contentType(org.springframework.http.MediaType.parseMediaType(
+                            request.getOutputMime()))
+                    .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + request.getOutputName() + "\"")
+                    .body(request.getOutputData());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
+
 
     /* ══ KPI quick counts (GRH / DRH) ═══════════════════════════ */
 
