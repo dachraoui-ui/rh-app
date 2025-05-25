@@ -39,25 +39,23 @@ public class DocRequestController {
 
     @GetMapping("/my")
     @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','MANAGER','SUPPORT')")
-    public Page<DocRequestDto> my(Pageable p,
-                                  @AuthenticationPrincipal Jwt jwt) {
+    public List<DocRequestDto> my(@AuthenticationPrincipal Jwt jwt) {
         String user = jwt.getClaim("preferred_username");
-        return service.listMine(user, p);
+        return service.listAllMine(user);
     }
 
     /* ══ HR INBOX & ASSIGNED ═════════════════════════════════════ */
 
     @GetMapping("/backlog")
     @PreAuthorize("hasAnyRole('GRH','DRH')")
-    public Page<DocRequestDto> backlog(Pageable p) {
-        return service.listBacklog(p);
+    public List<DocRequestDto> backlog() {
+        return service.listAllBacklog();
     }
 
     @GetMapping("/assigned")
     @PreAuthorize("hasAnyRole('GRH','DRH')")
-    public Page<DocRequestDto> assigned(Pageable p,
-                                        @AuthenticationPrincipal Jwt jwt) {
-        return service.listAssigned(jwt.getClaim("preferred_username"), p);
+    public List<DocRequestDto> assigned(@AuthenticationPrincipal Jwt jwt) {
+        return service.listAllAssigned(jwt.getClaim("preferred_username"));
     }
 
     /* ══ WORKFLOW PATCH (JSON) ══════════════════════════════════ */

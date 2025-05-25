@@ -40,9 +40,11 @@ public class DocRequestService {
         return DocRequestMapper.toDto(repo.save(entity));
     }
 
-    public Page<DocRequestDto> listMine(String employee, Pageable p) {
-        return repo.findByRequestedByOrderByCreatedAtDesc(employee, p)
-                .map(DocRequestMapper::toDto);
+    public List<DocRequestDto> listAllMine(String employee) {
+        return repo.findByRequestedByOrderByCreatedAtDesc(employee)
+                .stream()
+                .map(DocRequestMapper::toDto)
+                .toList();
     }
 
     /* ====== HR INBOX ====================================================== */
@@ -50,16 +52,23 @@ public class DocRequestService {
     private static final List<DocRequestStatus> BACKLOG =
             List.of(DocRequestStatus.REQUESTED,
                     DocRequestStatus.ACCEPTED,
-                    DocRequestStatus.PREPARING);
+                    DocRequestStatus.PREPARING,
+                    DocRequestStatus.REJECTED,
+                    DocRequestStatus.READY,
+                    DocRequestStatus.DELIVERED);
 
-    public Page<DocRequestDto> listBacklog(Pageable p) {
-        return repo.findByStatusInOrderByCreatedAtAsc(BACKLOG, p)
-                .map(DocRequestMapper::toDto);
+    public List<DocRequestDto> listAllBacklog() {
+        return repo.findByStatusInOrderByCreatedAtAsc(BACKLOG)
+                .stream()
+                .map(DocRequestMapper::toDto)
+                .toList();
     }
 
-    public Page<DocRequestDto> listAssigned(String grh, Pageable p) {
-        return repo.findByAssignedToAndStatusInOrderByCreatedAtAsc(grh, BACKLOG, p)
-                .map(DocRequestMapper::toDto);
+    public List<DocRequestDto> listAllAssigned(String grh) {
+        return repo.findByAssignedToAndStatusInOrderByCreatedAtAsc(grh, BACKLOG)
+                .stream()
+                .map(DocRequestMapper::toDto)
+                .toList();
     }
 
     /* ====== WORKFLOW  (GRH / DRH) ======================================== */

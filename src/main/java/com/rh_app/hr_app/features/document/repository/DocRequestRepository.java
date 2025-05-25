@@ -14,17 +14,15 @@ public interface DocRequestRepository extends JpaRepository<DocumentRequest, Lon
 
     /* ---------- Lists for UI ---------- */
 
-    /* Employee “My requests”. */
-    Page<DocumentRequest> findByRequestedByOrderByCreatedAtDesc(
-            String requestedBy, Pageable page);
+    /* Employee "My requests". */
+    List<DocumentRequest> findByRequestedByOrderByCreatedAtDesc(String requestedBy);
 
     /* HR inbox filter (e.g. OPEN = REQUESTED+ACCEPTED+PREPARING). */
-    Page<DocumentRequest> findByStatusInOrderByCreatedAtAsc(
-            Collection<DocRequestStatus> statuses, Pageable page);
+    List<DocumentRequest> findByStatusInOrderByCreatedAtAsc(Collection<DocRequestStatus> statuses);
 
-    /* GRH “assigned to me” view. */
-    Page<DocumentRequest> findByAssignedToAndStatusInOrderByCreatedAtAsc(
-            String assignedTo, Collection<DocRequestStatus> statuses, Pageable page);
+    /* GRH "assigned to me" view. */
+    List<DocumentRequest> findByAssignedToAndStatusInOrderByCreatedAtAsc(
+            String assignedTo, Collection<DocRequestStatus> statuses);
 
     /* ---------- KPI / dashboard ---------- */
 

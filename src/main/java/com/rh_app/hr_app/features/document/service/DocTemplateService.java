@@ -67,6 +67,27 @@ public class DocTemplateService {
                 .map(DocTemplateMapper::toDto)
                 .toList();
     }
+    /**
+     * List all templates (both active and inactive) for HR staff
+     * @return List of all document templates
+     */
+    public List<DocTemplateDto> listAllTemplates() {
+        List<DocumentTemplate> templates = tplRepo.findAllByOrderByNameAsc();
+        return templates.stream()
+                .map(DocTemplateMapper::toDto)
+                .toList();
+    }
+
+    /**
+     * List only inactive templates for HR staff
+     * @return List of inactive document templates
+     */
+    public List<DocTemplateDto> listInactiveTemplates() {
+        List<DocumentTemplate> templates = tplRepo.findByActiveFalseOrderByNameAsc();
+        return templates.stream()
+                .map(DocTemplateMapper::toDto)
+                .toList();
+    }
 
 
     /* ---------- Upload by DRH ---------- */
@@ -161,6 +182,23 @@ public class DocTemplateService {
         }
         // Set as inactive
         template.setActive(false);
+        // Return the updated template
+        return DocTemplateMapper.toDto(template);
+    }
+
+    @Transactional
+    public DocTemplateDto activateTemplate(Long id) {
+        DocumentTemplate template = tplRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Template not found with ID: " + id));
+
+        // Check if already active
+        if (template.isActive()) {
+            return DocTemplateMapper.toDto(template);
+        }
+
+        // Set as active
+        template.setActive(true);
+
         // Return the updated template
         return DocTemplateMapper.toDto(template);
     }

@@ -192,7 +192,7 @@ public class TicketService {
             t.setAssignedTo(t.getDepartment().getManagerUserId());
             t.setEscalationLevel(1);
             log.info("Escalated ticket #{} → Manager {}", t.getId(), t.getAssignedTo());
-            // NotificationService.notifyManager(t) … (to be wired)
+
         });
 
         /* 72 h → DRH */
@@ -200,7 +200,6 @@ public class TicketService {
             t.setAssignedTo("DRH");                      // or a user-id
             t.setEscalationLevel(2);
             log.warn("Escalated ticket #{} → DRH", t.getId());
-            // NotificationService.notifyDrh(t) … (to be wired)
         });
     }
     /* ────────────────────────────────────────────────────────────────

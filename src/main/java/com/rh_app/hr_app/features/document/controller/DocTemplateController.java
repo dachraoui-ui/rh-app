@@ -47,6 +47,25 @@ public class DocTemplateController {
                 jwt.getClaimAsMap("realm_access").toString().contains("GRH");
         return service.listAllActiveWithRoleFiltering(isHrRole);
     }
+    /**
+     * List all templates (both active and inactive) - HR only
+     */
+    @GetMapping("/all-templates")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<List<DocTemplateDto>> getAllTemplates() {
+        List<DocTemplateDto> templates = service.listAllTemplates();
+        return ResponseEntity.ok(templates);
+    }
+
+    /**
+     * List only inactive templates - HR only
+     */
+    @GetMapping("/inactive")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<List<DocTemplateDto>> getInactiveTemplates() {
+        List<DocTemplateDto> templates = service.listInactiveTemplates();
+        return ResponseEntity.ok(templates);
+    }
 
     /* ───────────────────────────────
        DRH uploads a new template
@@ -117,6 +136,21 @@ public class DocTemplateController {
         try {
             DocTemplateDto deactivated = service.deactivateTemplate(id);
             return ResponseEntity.ok(deactivated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    /**
+     * Activate a previously deactivated document template
+     */
+    @PatchMapping("/{id}/activate")
+    @PreAuthorize("hasAnyRole('DRH','GRH')")
+    public ResponseEntity<DocTemplateDto> activateTemplate(@PathVariable Long id) {
+        try {
+            DocTemplateDto activated = service.activateTemplate(id);
+            return ResponseEntity.ok(activated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {

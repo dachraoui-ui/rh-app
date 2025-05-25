@@ -17,6 +17,10 @@ public interface DocTemplateRepository extends JpaRepository<DocumentTemplate, L
      */
     List<DocumentTemplate> findByActiveTrueOrderByNameAsc();
 
+    // Add to DocTemplateRepository
+    List<DocumentTemplate> findAllByOrderByNameAsc();
+    List<DocumentTemplate> findByActiveFalseOrderByNameAsc();
+
     @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM DocumentRequest r WHERE r.template.id = :templateId")
     boolean isTemplateInUse(@Param("templateId") Long templateId);
 
