@@ -36,7 +36,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/webjars/**",
                                 "/swagger-ui.html",
-                                "/ws/**"
+                                "/ws-chat/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
