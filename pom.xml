@@ -110,6 +110,25 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Dependencies for websocket  -->
+		<!-- Sécurité “de base” indispensable -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!-- WebSocket / STOMP -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+
+		<!-- Appliquer @PreAuthorize sur les messages STOMP -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-messaging</artifactId>
+		</dependency>
+
 
 	</dependencies>
 
