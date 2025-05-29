@@ -50,4 +50,6 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     /* If you ever want a boolean check instead of the List:
        boolean existsBySupportUserIdsContains(String userId);    // Spring Data can derive this one automatically
     */
+
+
 }
