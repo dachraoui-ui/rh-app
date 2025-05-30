@@ -42,5 +42,9 @@ public class KeycloakConfig {
     protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
         return new NullAuthenticatedSessionStrategy();
     }
+    @Bean
+    public KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter() {
+        return new KeycloakJwtAuthenticationConverter();
+    }
 
 }
