@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +51,38 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     /* If you ever want a boolean check instead of the List:
        boolean existsBySupportUserIdsContains(String userId);    // Spring Data can derive this one automatically
     */
+
+    // kpis section
+    @Query("SELECT COUNT(d) FROM Department d WHERE d.createdAt >= :startDate")
+    long countByCreatedAtAfter(@Param("startDate") Instant startDate);
+
+    @Query("SELECT AVG(SIZE(d.supportUserIds)) FROM Department d")
+    double getAverageSupportUsersPerDepartment();
+
+    @Query(value =
+            "SELECT " +
+                    "  support_count, " +
+                    "  COUNT(*) AS dept_count " +
+                    "FROM (" +
+                    "  SELECT " +
+                    "    d.id, " +
+                    "    COUNT(s.support_user_id) AS support_count " +
+                    "  FROM " +
+                    "    department d " +
+                    "  LEFT JOIN " +
+                    "    department_support s ON d.id = s.department_id " +
+                    "  GROUP BY " +
+                    "    d.id" +
+                    ") AS dept_supports " +
+                    "GROUP BY " +
+                    "  support_count " +
+                    "ORDER BY " +
+                    "  support_count",
+            nativeQuery = true)
+    List<Object[]> getSupportUserDistribution();
+
+    @Query("SELECT COUNT(d) FROM Department d WHERE SIZE(d.supportUserIds) = 3")
+    long countDepartmentsWithFullSupportTeam();
 
 
 }
