@@ -18,4 +18,27 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     
     @Query("SELECT e FROM Event e WHERE e.isDeleted = false AND LOWER(e.guests) LIKE LOWER(CONCAT('%', :guestEmail, '%'))")
     List<Event> findByGuestEmailContainingAndNotDeleted(@Param("guestEmail") String guestEmail);
+
+    // query methods for KPIs
+    // KPI 1: Total events this month
+    @Query("SELECT COUNT(e) FROM Event e WHERE e.isDeleted = false AND e.date >= :startOfMonth AND e.date <= :endOfMonth")
+    long countEventsThisMonth(@Param("startOfMonth") LocalDate startOfMonth, @Param("endOfMonth") LocalDate endOfMonth);
+
+    // KPI 2: Events by calendar type (Leave, Internal, HR)
+    @Query("SELECT e.calendarType, COUNT(e) FROM Event e WHERE e.isDeleted = false GROUP BY e.calendarType")
+    List<Object[]> countEventsByCalendarType();
+
+    // KPI 3: Events by importance level
+    @Query("SELECT e.importance, COUNT(e) FROM Event e WHERE e.isDeleted = false GROUP BY e.importance")
+    List<Object[]> countEventsByImportance();
+
+    // KPI 4: Upcoming events count
+    @Query("SELECT COUNT(e) FROM Event e WHERE e.isDeleted = false AND e.date >= :currentDate")
+    long countUpcomingEvents(@Param("currentDate") LocalDate currentDate);
+
+    // KPI 4: Past events count
+    @Query("SELECT COUNT(e) FROM Event e WHERE e.isDeleted = false AND e.date < :currentDate")
+    long countPastEvents(@Param("currentDate") LocalDate currentDate);
+
+
 }
