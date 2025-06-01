@@ -1,4 +1,4 @@
-package com.rh_app.hr_app.core.security;
+package com.rh_app.hr_app.core.WebSocket.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
