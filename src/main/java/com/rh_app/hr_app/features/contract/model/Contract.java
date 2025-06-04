@@ -1,5 +1,6 @@
 package com.rh_app.hr_app.features.contract.model;
 
+import com.rh_app.hr_app.core.enums.ContractType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,7 +25,7 @@ public class Contract {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ContractType Type;
+    private ContractType type;
 
     @Column(name = "start_date", nullable = false)
     private Date start_date;
