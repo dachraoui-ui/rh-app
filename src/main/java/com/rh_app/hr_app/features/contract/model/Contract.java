@@ -1,6 +1,5 @@
 package com.rh_app.hr_app.features.contract.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,26 +16,28 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "contrat")
-
 public class Contract {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idContrat;
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ContractType Type;
+
+    @Column(name = "start_date", nullable = false)
+    private Date start_date;
+
+    @Column(name = "end_date", nullable = false)
+    private Date end_date;
 
     @Column(nullable = false)
-    private String contratType;
+    private Double salary;
 
     @Column(nullable = false)
-    private Date DateDebut;
+    private String Currency;
 
-    @Column(nullable = false)
-    private Date DateFin;
-
-    @Column(nullable = false)
-    private  Double salaire;
-
-    // !to do : employee id
-
-
+    @Column(name = "employee_id", nullable = false)
+    private String employeeId; // ID from Keycloak
 }
