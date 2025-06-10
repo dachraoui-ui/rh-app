@@ -26,6 +26,7 @@ public class ContractMapper {
                 .end_date(contract.getEnd_date())
                 .salary(contract.getSalary())
                 .Currency(contract.getCurrency())
+                .isActive(contract.isActive())
                 .employeeId(contract.getEmployeeId())
                 .build();
     }
@@ -46,6 +47,7 @@ public class ContractMapper {
                 .end_date(dto.getEnd_date())
                 .salary(dto.getSalary())
                 .Currency(dto.getCurrency())
+                .isActive(dto.isActive())
                 .employeeId(dto.getEmployeeId())
                 .build();
     }

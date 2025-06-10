@@ -19,5 +19,6 @@ public class ContractDTO {
     private Date end_date;
     private Double salary;
     private String Currency;
+    private boolean isActive;
     private String employeeId;
 }

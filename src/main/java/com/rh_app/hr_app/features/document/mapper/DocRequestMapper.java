@@ -12,7 +12,7 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DocRequestMapper {
 
-    /* -------- Entity ➜ DTO -------- */
+    /* -------- Entity ➜ DTO : read  -------- */
     public static DocRequestDto toDto(DocumentRequest r) {
         if (r == null) return null;
         return DocRequestDto.builder()
@@ -56,7 +56,6 @@ public final class DocRequestMapper {
                 case DELIVERED       -> entity.setDeliveredAt(now);
                 default -> { /* no extra timestamp */ }
             }
-            entity.setResolvedBy(hrUser);
         }
 
         if (patch.rejectReason() != null) {

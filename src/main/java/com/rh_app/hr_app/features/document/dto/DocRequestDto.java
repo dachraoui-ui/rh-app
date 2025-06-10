@@ -6,7 +6,7 @@ import lombok.Value;
 
 import java.time.Instant;
 
-/** Read model shown in employee “My requests” and HR inbox. */
+/** Reading DTO for the documentRequest so that the user can read the info of doc. */
 @Value
 @Builder
 public class DocRequestDto {

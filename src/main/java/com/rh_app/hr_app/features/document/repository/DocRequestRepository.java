@@ -1,6 +1,7 @@
 package com.rh_app.hr_app.features.document.repository;
 
 import com.rh_app.hr_app.core.enums.document_enums.DocRequestStatus;
+import com.rh_app.hr_app.core.enums.document_enums.DocTemplateType;
 import com.rh_app.hr_app.features.document.model.DocumentRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,19 +18,16 @@ public interface DocRequestRepository extends JpaRepository<DocumentRequest, Lon
     /* Employee "My requests". */
     List<DocumentRequest> findByRequestedByOrderByCreatedAtDesc(String requestedBy);
 
-    /* HR inbox filter (e.g. OPEN = REQUESTED+ACCEPTED+PREPARING). */
+    /* Request Filter  */
     List<DocumentRequest> findByStatusInOrderByCreatedAtAsc(Collection<DocRequestStatus> statuses);
 
-    /* GRH "assigned to me" view. */
-    List<DocumentRequest> findByAssignedToAndStatusInOrderByCreatedAtAsc(
-            String assignedTo, Collection<DocRequestStatus> statuses);
 
     /* ---------- KPI / dashboard ---------- */
 
     long countByStatus(DocRequestStatus status);                      // per state
     long countByStatusIn(Collection<DocRequestStatus> statuses);      // e.g. open total
     long countByStatusAndTemplate_Type(DocRequestStatus status,
-                                       com.rh_app.hr_app.core.enums.document_enums.DocTemplateType type);
+                                       DocTemplateType type);
 
     /* Overdue requests: still not READY after N hours. */
     List<DocumentRequest> findByStatusInAndCreatedAtBefore(

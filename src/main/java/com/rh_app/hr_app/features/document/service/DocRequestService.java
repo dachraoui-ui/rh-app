@@ -64,12 +64,6 @@ public class DocRequestService {
                 .toList();
     }
 
-    public List<DocRequestDto> listAllAssigned(String grh) {
-        return repo.findByAssignedToAndStatusInOrderByCreatedAtAsc(grh, BACKLOG)
-                .stream()
-                .map(DocRequestMapper::toDto)
-                .toList();
-    }
 
     /* ====== WORKFLOW  (GRH / DRH) ======================================== */
 
@@ -97,7 +91,6 @@ public class DocRequestService {
         r.setOutputMime(pdf.getContentType());
         r.setOutputSize((long) pdf.getBytes().length);
         r.setStatus(DocRequestStatus.READY);
-        r.setResolvedBy(hrUser);
         r.setResolvedAt(Instant.now());
         return DocRequestMapper.toDto(r);
     }

@@ -44,7 +44,7 @@ public class DocRequestController {
         return service.listAllMine(user);
     }
 
-    /* ══ HR INBOX & ASSIGNED ═════════════════════════════════════ */
+    /* ══ HR INBOX ═════════════════════════════════════ */
 
     @GetMapping("/backlog")
     @PreAuthorize("hasAnyRole('GRH','DRH')")
@@ -52,11 +52,6 @@ public class DocRequestController {
         return service.listAllBacklog();
     }
 
-    @GetMapping("/assigned")
-    @PreAuthorize("hasAnyRole('GRH','DRH')")
-    public List<DocRequestDto> assigned(@AuthenticationPrincipal Jwt jwt) {
-        return service.listAllAssigned(jwt.getClaim("preferred_username"));
-    }
 
     /* ══ WORKFLOW PATCH (JSON) ══════════════════════════════════ */
 

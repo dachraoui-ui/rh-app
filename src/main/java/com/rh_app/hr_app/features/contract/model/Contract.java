@@ -30,14 +30,17 @@ public class Contract {
     @Column(name = "start_date", nullable = false)
     private Date start_date;
 
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date", nullable =true)
     private Date end_date;
 
     @Column(nullable = false)
     private Double salary;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String Currency;
+
+    @Column(nullable = false)
+    private boolean isActive = true; // Indicates if the contract is currently active
 
     @Column(name = "employee_id", nullable = false)
     private String employeeId; // ID from Keycloak

@@ -11,10 +11,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
-/**
- * One employee’s request for a document. Final PDF is stored in the DB;
- * employees never download it—HR prints and hands it over face-to-face.
- */
+
 @Entity
 @Table(name = "doc_request")
 @Data
@@ -37,12 +34,12 @@ public class DocumentRequest {
     private DocRequestStatus status = DocRequestStatus.REQUESTED;
 
     @Lob
-    @JdbcTypeCode(SqlTypes.BINARY) // <-- Add this annotation
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "output_data")
     private byte[] outputData;
 
 
-    @Column(length = 255)
+    @Column(length = 200)
     private String outputName;
 
     @Column(length = 100)
@@ -56,7 +53,7 @@ public class DocumentRequest {
     /* ---------- Users ---------- */
 
     @Column(nullable = false, length = 50)
-    private String requestedBy;          // employee / intern
+    private String requestedBy;          // employee , intern , manager and support
 
 
     /* ---------- Audit timestamps ---------- */
@@ -66,7 +63,7 @@ public class DocumentRequest {
     private Instant createdAt;
 
     private Instant resolvedAt;          // READY or REJECTED
-    private Instant deliveredAt;         // after physical hand-over
+    private Instant deliveredAt;         // when the document is delivered to the employee
 
     @UpdateTimestamp
     @Column(nullable = false)
