@@ -15,8 +15,6 @@ public class DocRequestDto {
     String            templateName;
     DocRequestStatus  status;
     String            requestedBy;
-    String            assignedTo;
-    String            resolvedBy;
     String            rejectReason;
     Instant           createdAt;
     Instant           resolvedAt;
