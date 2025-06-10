@@ -58,11 +58,6 @@ public class DocumentRequest {
     @Column(nullable = false, length = 50)
     private String requestedBy;          // employee / intern
 
-    @Column(length = 50)
-    private String assignedTo;           // GRH, who took ownership
-
-    @Column(length = 50)
-    private String resolvedBy;           // HR who finished / rejected / delivered
 
     /* ---------- Audit timestamps ---------- */
 
