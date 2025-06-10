@@ -63,8 +63,5 @@ public final class DocRequestMapper {
             entity.setRejectReason(patch.rejectReason());
         }
 
-        if (patch.assignedTo() != null) {
-            entity.setAssignedTo(patch.assignedTo());
-        }
     }
 }
