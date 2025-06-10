@@ -21,8 +21,6 @@ public final class DocRequestMapper {
                 .templateName(r.getTemplate().getName())
                 .status(r.getStatus())
                 .requestedBy(r.getRequestedBy())
-                .assignedTo(r.getAssignedTo())
-                .resolvedBy(r.getResolvedBy())
                 .rejectReason(r.getRejectReason())
                 .createdAt(r.getCreatedAt())
                 .resolvedAt(r.getResolvedAt())
