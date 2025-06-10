@@ -10,6 +10,5 @@ import com.rh_app.hr_app.core.enums.document_enums.DocRequestStatus;
  */
 public record DocRequestWorkflowDto(
         DocRequestStatus status,   // ACCEPTED, PREPARING, READY, DELIVERED, REJECTED
-        String           rejectReason,
-        String           assignedTo // optional re-assign
+        String           rejectReason
 ) { }
