@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,6 +48,36 @@ public class DocRequestService {
                 .stream()
                 .map(DocRequestMapper::toDto)
                 .toList();
+    }
+
+    public ResponseEntity<byte[]> downloadDocumentFile(Long id, String username) {
+        DocumentRequest request = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Document request not found with ID: " + id));
+
+        // Security check - only requester or HR can download
+        boolean isRequestOwner = request.getRequestedBy().equals(username);
+
+        // Use Spring Security context to check for HR roles instead of username pattern
+        boolean isHR = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_GRH") ||
+                        a.getAuthority().equals("ROLE_DRH"));
+
+        if (!isRequestOwner && !isHR) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        // Check if document exists
+        if (request.getOutputData() == null || request.getOutputData().length == 0) {
+            return ResponseEntity.noContent().build();
+        }
+
+        // Return document as downloadable file
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"" + request.getOutputName() + "\"")
+                .contentType(org.springframework.http.MediaType.parseMediaType(request.getOutputMime()))
+                .contentLength(request.getOutputSize())
+                .body(request.getOutputData());
     }
 
     /* ====== HR INBOX ====================================================== */

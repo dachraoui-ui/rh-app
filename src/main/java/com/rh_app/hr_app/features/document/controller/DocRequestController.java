@@ -43,6 +43,14 @@ public class DocRequestController {
         String user = jwt.getClaim("preferred_username");
         return service.listAllMine(user);
     }
+    @GetMapping("/{id}/download")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','INTERN','MANAGER','SUPPORT','GRH','DRH')")
+    public ResponseEntity<byte[]> downloadDocument(@PathVariable Long id,
+                                                   @AuthenticationPrincipal Jwt jwt) {
+        // Get username from JWT token
+        String username = jwt.getClaim("preferred_username");
+        return service.downloadDocumentFile(id, username);
+    }
 
     /* ══ HR INBOX ═════════════════════════════════════ */
 
@@ -56,7 +64,7 @@ public class DocRequestController {
     /* ══ WORKFLOW PATCH (JSON) ══════════════════════════════════ */
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    @PreAuthorize("isAuthenticated()")
     public DocRequestDto workflow(@PathVariable Long id,
                                   @RequestBody DocRequestWorkflowDto patch,
                                   @AuthenticationPrincipal Jwt jwt) {
@@ -76,21 +84,7 @@ public class DocRequestController {
         return service.markReady(id, pdf,
                 jwt.getClaim("preferred_username"));
     }
-    @PatchMapping("/{id}/update")
-    @PreAuthorize("hasAnyRole('GRH','DRH')")
-    public ResponseEntity<DocTemplateDto> updateTemplateNameAndType(
-            @PathVariable Long id,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) DocTemplateType type) {
-        try {
-            DocTemplateDto updated = service.updateTemplateNameAndType(id, name, type);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
+
 
     /* ══ KPI quick counts (GRH / DRH) ═══════════════════════════ */
 

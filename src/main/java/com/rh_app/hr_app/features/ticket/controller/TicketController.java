@@ -248,9 +248,7 @@ public class TicketController {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
     }
 
-    /* ╔════════════════════════════════════════════════════╗
-       ║   TESTING ENDPOINTS (for dev/test purposes only)   ║
-       ╚════════════════════════════════════════════════════╝ */
+    // test for escalation logic
     @PostMapping("/quick-escalation-test")
     @PreAuthorize("hasAnyRole('GRH','DRH')")
     public ResponseEntity<String> quickEscalationTest() {

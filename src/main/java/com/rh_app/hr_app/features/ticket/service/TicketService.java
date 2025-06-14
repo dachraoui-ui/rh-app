@@ -139,7 +139,7 @@ public class TicketService {
     }
     /**
      * Get the count of tickets created by the employee in the current month
-     * Used to show remaining quota in the UI
+     * Used to show the remaining quota in the UI
      * @param employeeId The employee ID (Keycloak user ID)
      * @return The count of tickets created in the current month
      */
@@ -370,7 +370,7 @@ public class TicketService {
         testTicket.setEscalationLevel(0);
         testTicket.setCreatedBy("test-user");
         testTicket.setDescription("Quick Escalation Test");
-        testTicket.setCategory(HrRequestCategory.PAYSLIP_QUESTION);
+        testTicket.setCategory(HrRequestCategory.PERSONAL_DATA_CHANGE);
         testTicket.setDepartment(dept);
 
         // 3. Save ticket
@@ -422,7 +422,7 @@ public class TicketService {
         testTicket.setEscalationLevel(1); // Already at level 1 (manager escalation)
         testTicket.setCreatedBy("test-user");
         testTicket.setDescription("DRH Escalation Test");
-        testTicket.setCategory(HrRequestCategory.PAYSLIP_QUESTION);
+        testTicket.setCategory(HrRequestCategory.PERSONAL_DATA_CHANGE);
         testTicket.setDepartment(dept);
         testTicket.setAssignedTo(dept.getManagerUserId()); // Already assigned to manager
 

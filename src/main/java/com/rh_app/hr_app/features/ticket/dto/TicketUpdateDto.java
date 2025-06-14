@@ -13,5 +13,6 @@ public class TicketUpdateDto {
     TicketStatus   status;
     TicketPriority priority;
     String         assignedTo;
+    Long           departmentId;
 
 }

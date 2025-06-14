@@ -26,6 +26,5 @@ public class Project {
     @OneToMany(mappedBy = "projet", cascade = CascadeType.ALL)
     private Set<Task> taches;
 
-    @OneToMany(mappedBy = "projet", cascade = CascadeType.ALL)
-    private Set<EmployeeProjetRole> assignedEmployees;
+
 }

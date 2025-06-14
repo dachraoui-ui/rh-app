@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 /**
  * Centralised mapper for Ticket ↔ DTOs.
  *
- *   • toDto(…)                 – READ
- *   • toEntityForCreate(…)     – CREATE (employee)
- *   • applyUpdate(…)           – UPDATE (workflow changes)
+ *   • toDto(…) – READ
+ *   • toEntityForCreate(…) – CREATE (employee)
+ *   • applyUpdate(…) – UPDATE (workflow changes)
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TicketMapper {
