@@ -36,9 +36,7 @@ public class UserMapper {
         if (dto.getDepartmentId() != null) {
             attributes.put("departmentId", List.of(dto.getDepartmentId()));
         }
-        if (dto.getSalary() != null) {
-            attributes.put("salary", List.of(dto.getSalary().toString()));
-        }
+
         if (dto.getRole() != null) {
             attributes.put("role", List.of(dto.getRole()));
         }
@@ -65,12 +63,7 @@ public class UserMapper {
         if (dto.getCountry() != null) {
             attributes.put("Country", List.of(dto.getCountry()));
         }
-        if (dto.getPay_Schedule() != null) {
-            attributes.put("Pay_Schedule", List.of(dto.getPay_Schedule()));
-        }
-        if (dto.getPay_Type() != null) {
-            attributes.put("Pay_Type", List.of(dto.getPay_Type()));
-        }
+
         if (dto.getEthnicity() != null) {
             attributes.put("Ethnicity", List.of(dto.getEthnicity()));
         }
@@ -92,16 +85,12 @@ public class UserMapper {
         if (dto.getLocation() != null) {
             attributes.put("Location", List.of(dto.getLocation()));
         }
-        if (dto.getContract() != null) {
-            attributes.put("contract", List.of(dto.getContract()));
-        }
+
         if (dto.getIsArchived() != null) {
             attributes.put("isArchived",
                     List.of(dto.getIsArchived().toString()));   // "true" / "false"
         }
-        if (dto.getCurrency() != null) {
-            attributes.put("currency", List.of(dto.getCurrency()));
-        }
+
 
         user.setAttributes(attributes);
         user.setRequiredActions(List.of("UPDATE_PASSWORD"));
@@ -123,7 +112,6 @@ public class UserMapper {
                 .telephone(getAttribute(attributes, "telephone"))
                 .photoUrl(getAttribute(attributes, "photoUrl"))
                 .departmentId(getAttribute(attributes, "departmentId"))
-                .salary(parseDouble(getAttribute(attributes, "salary")))
                 // Mapping the role field from the Keycloak attribute
                 .role(getAttribute(attributes, "role"))
                 .isActive(user.isEnabled())
@@ -135,8 +123,8 @@ public class UserMapper {
                 .City(getAttribute(attributes, "City"))
                 .ZIP(getAttribute(attributes, "ZIP"))
                 .Country(getAttribute(attributes, "Country"))
-                .Pay_Schedule(getAttribute(attributes, "Pay_Schedule"))
-                .Pay_Type(getAttribute(attributes, "Pay_Type"))
+
+
                 .Ethnicity(getAttribute(attributes, "Ethnicity"))
                 .Work_Phone(getAttribute(attributes, "Work_Phone"))
                 .Mobile_Phone(getAttribute(attributes, "Mobile_Phone"))
@@ -144,9 +132,9 @@ public class UserMapper {
                 .Hire_Date(getAttribute(attributes, "Hire_Date"))
                 .Job_Title(getAttribute(attributes, "Job_Title"))
                 .Location(getAttribute(attributes, "Location"))
-                .contract(getAttribute(attributes, "contract"))
+
                 .isArchived(parseBoolean(getAttribute(attributes, "isArchived")))
-                .currency(getAttribute(attributes, "currency"))
+
                 //  archived flag (convert String → Boolean)
 
                 .build();

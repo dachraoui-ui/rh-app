@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/departments")
@@ -51,5 +52,23 @@ public class DepartmentController {
     @PreAuthorize("hasAnyRole('GRH','DRH')")
     public ResponseEntity<DepartmentDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getDepartmentById(id));
+    }
+
+    /**
+     * Get all manager user IDs across all departments
+     */
+    @GetMapping("/managers")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<List<String>> getAllDepartmentManagers() {
+        return ResponseEntity.ok(service.getAllDepartmentManagers());
+    }
+
+    /**
+     * Get all support users for a specific department
+     */
+    @GetMapping("/{id}/support-users")
+    @PreAuthorize("hasAnyRole('GRH','DRH')")
+    public ResponseEntity<Map<String, Map<String, String>>> getSupportUsersByDepartment(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getSupportUsersByDepartment(id));
     }
 }

@@ -92,33 +92,33 @@ public class KeycloakUserService {
     //  Create User
     public String createUser(UserDto dto) {
         // Use the mapper to include all custom attributes
-        if (dto.getDepartmentId() != null &&
-                dto.getRole() != null &&
-                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
-                departmentHasManager(dto.getDepartmentId())) {
-
-            return "Error: Cannot assign MANAGER role - department already has a manager";
-        }
-        // Check for SUPPORT role limit
-
-        if (dto.getDepartmentId() != null &&
-                dto.getRole() != null &&
-                "SUPPORT".equalsIgnoreCase(dto.getRole()) &&
-                departmentHasMaxSupportUsers(dto.getDepartmentId())) {
-
-            return "Error: Cannot assign SUPPORT role - department already has maximum number of support users (3)";
-        }
+//        if (dto.getDepartmentId() != null &&
+//                dto.getRole() != null &&
+//                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
+//                departmentHasManager(dto.getDepartmentId())) {
+//
+//            return "Error: Cannot assign MANAGER role - department already has a manager";
+//        }
+//        // Check for SUPPORT role limit
+//
+//        if (dto.getDepartmentId() != null &&
+//                dto.getRole() != null &&
+//                "SUPPORT".equalsIgnoreCase(dto.getRole()) &&
+//                departmentHasMaxSupportUsers(dto.getDepartmentId())) {
+//
+//            return "Error: Cannot assign SUPPORT role - department already has maximum number of support users (3)";
+//        }
 
 
 
         UserRepresentation user = UserMapper.toUserRepresentation(dto);
-        if (dto.getDepartmentId() != null &&
-                dto.getRole() != null &&
-                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
-                departmentHasManager(dto.getDepartmentId())) {
-
-            return "Error: Cannot assign MANAGER role - department already has a manager";
-        }
+//        if (dto.getDepartmentId() != null &&
+//                dto.getRole() != null &&
+//                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
+//                departmentHasManager(dto.getDepartmentId())) {
+//
+//            return "Error: Cannot assign MANAGER role - department already has a manager";
+//        }
 
         // Enable user if isActive is true (or null)
         boolean enabled = (dto.getIsActive() == null) || dto.getIsActive();
@@ -235,26 +235,26 @@ public class KeycloakUserService {
     public String updateUserProfile(String userId, UserDto dto) {
         Optional<UserDto> existingUser = getUserById(userId);
 
-        // Check if trying to assign MANAGER role to a department that already has one
-        if (existingUser.isPresent() &&
-                dto.getRole() != null &&
-                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
-                !dto.getRole().equalsIgnoreCase(existingUser.get().getRole()) && // Role is changing to MANAGER
-                dto.getDepartmentId() != null &&
-                departmentHasManager(dto.getDepartmentId())) {
-
-            return "Error: Cannot assign MANAGER role - department already has a manager";
-        }
-        // Check if trying to assign SUPPORT role to a department that already has max support users
-        if (existingUser.isPresent() &&
-                dto.getRole() != null &&
-                "SUPPORT".equalsIgnoreCase(dto.getRole()) &&
-                !dto.getRole().equalsIgnoreCase(existingUser.get().getRole()) && // Role is changing to SUPPORT
-                dto.getDepartmentId() != null &&
-                departmentHasMaxSupportUsers(dto.getDepartmentId())) {
-
-            return "Error: Cannot assign SUPPORT role - department already has maximum number of support users (3)";
-        }
+//        // Check if trying to assign MANAGER role to a department that already has one
+//        if (existingUser.isPresent() &&
+//                dto.getRole() != null &&
+//                "MANAGER".equalsIgnoreCase(dto.getRole()) &&
+//                !dto.getRole().equalsIgnoreCase(existingUser.get().getRole()) && // Role is changing to MANAGER
+//                dto.getDepartmentId() != null &&
+//                departmentHasManager(dto.getDepartmentId())) {
+//
+//            return "Error: Cannot assign MANAGER role - department already has a manager";
+//        }
+//        // Check if trying to assign SUPPORT role to a department that already has max support users
+//        if (existingUser.isPresent() &&
+//                dto.getRole() != null &&
+//                "SUPPORT".equalsIgnoreCase(dto.getRole()) &&
+//                !dto.getRole().equalsIgnoreCase(existingUser.get().getRole()) && // Role is changing to SUPPORT
+//                dto.getDepartmentId() != null &&
+//                departmentHasMaxSupportUsers(dto.getDepartmentId())) {
+//
+//            return "Error: Cannot assign SUPPORT role - department already has maximum number of support users (3)";
+//        }
 
 
         UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
@@ -269,7 +269,6 @@ public class KeycloakUserService {
         user.singleAttribute("cin", dto.getCin());
         user.singleAttribute("telephone", dto.getTelephone());
         user.singleAttribute("photoUrl", dto.getPhotoUrl());
-        user.singleAttribute("salary", String.valueOf(dto.getSalary()));
         user.singleAttribute("departmentId", dto.getDepartmentId());
         user.singleAttribute("isActive", String.valueOf(dto.getIsActive()));
 
@@ -296,12 +295,6 @@ public class KeycloakUserService {
         if (dto.getCountry() != null) {
             user.singleAttribute("Country", dto.getCountry());
         }
-        if (dto.getPay_Schedule() != null) {
-            user.singleAttribute("Pay_Schedule", dto.getPay_Schedule());
-        }
-        if (dto.getPay_Type() != null) {
-            user.singleAttribute("Pay_Type", dto.getPay_Type());
-        }
         if (dto.getEthnicity() != null) {
             user.singleAttribute("Ethnicity", dto.getEthnicity());
         }
@@ -323,15 +316,10 @@ public class KeycloakUserService {
         if (dto.getLocation() != null) {
             user.singleAttribute("Location", dto.getLocation());
         }
-        if (dto.getContract() != null) {
-            user.singleAttribute("contract", dto.getContract());
-        }
         if (dto.getIsArchived() != null) {
             user.singleAttribute("isArchived", String.valueOf(dto.getIsArchived()));
         }
-        if (dto.getCurrency() != null) {
-            user.singleAttribute("currency", dto.getCurrency());
-        }
+
 
         // Set enable/disable status
         user.setEnabled(Boolean.TRUE.equals(dto.getIsActive()));
@@ -420,7 +408,10 @@ public class KeycloakUserService {
     public Optional<UserDto> getUserById(String userId) {
         try {
             UserRepresentation user = keycloak.realm(realm).users().get(userId).toRepresentation();
-            return Optional.of(UserMapper.fromUserRepresentation(user));
+            UserDto userDto = UserMapper.fromUserRepresentation(user);
+            List<String> roles = getUserRoles(user.getId());  // ← Add this line
+            userDto.setRole(roles != null && !roles.isEmpty() ? roles.get(0) : null);  // ← Add this line
+            return Optional.of(userDto);
         } catch (Exception e) {
             e.printStackTrace();
             return Optional.empty();

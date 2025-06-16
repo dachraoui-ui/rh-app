@@ -172,6 +172,30 @@ public class DepartmentService {
                             return m;
                         }));
     }
+    /**
+     * Get all manager user IDs across all departments
+     */
+    public List<String> getAllDepartmentManagers() {
+        return getAllDepartments().stream()
+                .map(DepartmentDto::getManagerUserId)
+                .toList();
+    }
+
+    /**
+     * Get only support users for a specific department
+     */
+    public Map<String, Map<String, String>> getSupportUsersByDepartment(Long departmentId) {
+        // Get the department to extract support user IDs
+        DepartmentDto department = getDepartmentById(departmentId);
+
+        // Get all people (manager + support) for the department
+        Map<String, Map<String, String>> allPeople = getPeopleDirectory(departmentId);
+
+        // Filter to keep only support users
+        return allPeople.entrySet().stream()
+                .filter(entry -> department.getSupportUserIds().contains(entry.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
 
     /* ─── private helper ─────────────────────────────────────────── */
 

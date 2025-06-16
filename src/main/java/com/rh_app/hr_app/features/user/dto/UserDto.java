@@ -16,8 +16,6 @@ public class UserDto {
     private String telephone;
     private String photoUrl;
     private String departmentId;
-    private Double salary;
-    private String currency;
     private Boolean isActive;
     private String password;
     private String role;
@@ -30,8 +28,7 @@ public class UserDto {
     private String City;
     private String ZIP;
     private String Country;
-    private String Pay_Schedule;
-    private String Pay_Type;
+
     private String Ethnicity;
     private String Work_Phone;
     private String Mobile_Phone;
@@ -39,6 +36,5 @@ public class UserDto {
     private String Hire_Date;
     private String Job_Title;
     private String Location;
-    private String contract;
     private Boolean isArchived;
 }

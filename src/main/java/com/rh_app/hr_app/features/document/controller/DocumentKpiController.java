@@ -24,4 +24,6 @@ public class DocumentKpiController {
     public ResponseEntity<DocFolderKpiDto> getFolderKpis() {
         return ResponseEntity.ok(kpiService.getFolderKpis());
     }
+
+
 }
