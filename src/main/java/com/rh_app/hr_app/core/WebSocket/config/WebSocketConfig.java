@@ -49,7 +49,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        // 1) Custom interceptor to extract and validate JWT on CONNECT
+        //  Custom interceptor to extract and validate JWT on CONNECT
         ChannelInterceptor jwtInterceptor = new ChannelInterceptor() {
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -70,7 +70,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             }
         };
 
-        // 2) Spring's SecurityContextChannelInterceptor to propagate SecurityContext
+        //  Spring's SecurityContextChannelInterceptor to propagate SecurityContext
         SecurityContextChannelInterceptor securityInterceptor = new SecurityContextChannelInterceptor();
 
         registration.interceptors(jwtInterceptor, securityInterceptor);
