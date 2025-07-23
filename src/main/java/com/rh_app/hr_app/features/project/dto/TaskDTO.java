@@ -5,26 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProjectDTO {
+public class TaskDTO {
     private Long id;
     private String title;
-    private String description;
-    private String manager;
-    private Long managerId;
-    private LocalDate startDate;
-    private LocalDate endDate;
     private String status;
-    private Integer progress;
+    private String priority;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<TaskDTO> tasks = new ArrayList<>();
+    private Long projectId;
 }
